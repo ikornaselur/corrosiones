@@ -20,7 +20,7 @@ impl Memory {
     pub fn new() -> Memory {
         Memory {
             ram: Vec::new(),
-            io: Vec::new(),
+            io: vec![0x00; IO_SIZE],
             expansion_rom: Vec::new(),
             sram: Vec::new(),
             rom: Vec::new(),
@@ -74,23 +74,19 @@ impl Memory {
     /// assert_eq!(memory.read(0x1001), 0xAD); // Mirrored RAM read
     /// ```
     pub fn read(&self, addr: u16) -> u8 {
+        let addr = usize::from(addr);
         match addr {
-            0x0000...0x07FF => self.read_ram(addr),
-            0x0800...0x0FFF => self.read_ram(addr - 0x0800),
-            0x1000...0x17FF => self.read_ram(addr - 0x1000),
-            0x1800...0x1FFF => self.read_ram(addr - 0x1800),
-            0x2000...0x3FFF => self.read_io((addr - 0x2000) % 0x0008),
-            0x4000...0x401F => self.read_io(addr - 0x4000 + 0x0008),
+            0x0000...0x07FF => self.ram[addr],
+            0x0800...0x0FFF => self.ram[addr - 0x0800],
+            0x1000...0x17FF => self.ram[addr - 0x1000],
+            0x1800...0x1FFF => self.ram[addr - 0x1800],
+            0x2000...0x3FFF => self.io[(addr - 0x2000) % 0x0008],
+            0x4000...0x401F => self.io[addr - 0x4000 + 0x0008],
+            0x4020...0x5FFF => self.expansion_rom[addr - 0x4020],
+            0x6000...0x7FFF => self.sram[addr - 0x6000],
+            0x8000...0xFFFF => self.rom[addr - 0x8000],
             _ => panic!("Reading from 0x{:04X?} is unsupported", addr),
         }
-    }
-
-    fn read_ram(&self, addr: u16) -> u8 {
-        self.ram[addr as usize]
-    }
-
-    fn read_io(&self, addr: u16) -> u8 {
-        self.io[addr as usize]
     }
 }
 
@@ -141,5 +137,32 @@ mod test {
 
         assert_eq!(memory.read(0x4000), 0xDE);
         assert_eq!(memory.read(0x401F), 0xAD);
+    }
+
+    #[test]
+    fn read_from_expansion_rom() {
+        let mut memory = Memory::new();
+        memory.expansion_rom = vec![0x01, 0x02];
+
+        assert_eq!(memory.read(0x4020), 0x01);
+        assert_eq!(memory.read(0x4021), 0x02);
+    }
+
+    #[test]
+    fn read_from_sram() {
+        let mut memory = Memory::new();
+        memory.sram = vec![0x01, 0x02];
+
+        assert_eq!(memory.read(0x6000), 0x01);
+        assert_eq!(memory.read(0x6001), 0x02);
+    }
+
+    #[test]
+    fn read_from_rom() {
+        let mut memory = Memory::new();
+        memory.rom = vec![0x01, 0x02];
+
+        assert_eq!(memory.read(0x8000), 0x01);
+        assert_eq!(memory.read(0x8001), 0x02);
     }
 }
