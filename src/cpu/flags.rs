@@ -20,6 +20,20 @@ impl Default for Flags {
     }
 }
 
+impl Flags {
+    pub fn new() -> Flags {
+        Flags::default()
+    }
+
+    pub fn set_zero_from_byte(&mut self, byte: u8) {
+        self.zero = byte == 0;
+    }
+
+    pub fn set_negative_from_byte(&mut self, byte: u8) {
+        self.negative = byte >> 7 & 1 == 1;
+    }
+}
+
 impl From<u8> for Flags {
     fn from(flags: u8) -> Self {
         Flags {
