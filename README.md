@@ -8,3 +8,4 @@ The following is a list of resources that I used, in no particular order
 * [A blog post by Michael Fogleman](https://medium.com/@fogleman/i-made-an-nes-emulator-here-s-what-i-learned-about-the-original-nintendo-2e078c9b28fe)
 * [NES Documentation](http://nesdev.com/NESDoc.pdf)
 * [6502 Reference](http://obelisk.me.uk/6502/reference.html)
+* [NES Hacker](http://www.thealmightyguru.com/Games/Hacking/Wiki/index.php/)
