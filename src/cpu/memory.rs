@@ -88,6 +88,34 @@ impl Memory {
             _ => panic!("Reading from 0x{:04X?} is unsupported", addr),
         }
     }
+
+    /// Write to the memory
+    ///
+    /// # Panics
+    ///
+    /// Panics if trying to write to a read only part of the memory
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let mut memory = corrosiones::cpu::memory::Memory::new();
+    ///
+    /// memory.load_ram(vec![0x00, 0x00]);
+    ///
+    /// memory.write(0x0001, 0xAB);
+    ///
+    /// assert_eq!(memory.read(0x0001), 0xAB);
+    /// ```
+    pub fn write(&mut self, addr: u16, byte: u8) {
+        let addr = usize::from(addr);
+        match addr {
+            0x0000...0x07FF => self.ram[addr] = byte,
+            0x0800...0x0FFF => self.ram[addr - 0x0800] = byte,
+            0x1000...0x17FF => self.ram[addr - 0x1000] = byte,
+            0x1800...0x1FFF => self.ram[addr - 0x1800] = byte,
+            _ => panic!("Unable to write to 0x{:04X?}", addr),
+        }
+    }
 }
 
 #[cfg(test)]

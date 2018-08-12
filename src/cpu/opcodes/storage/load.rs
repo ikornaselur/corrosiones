@@ -14,6 +14,10 @@ use cpu::{Addressing, CPU};
 /// * Zero Page X - 4 Cycles
 ///
 /// \* Add 1 if page boundary is crossed
+///
+/// # Flags affected
+/// * Zero
+/// * Negative
 pub fn lda(cpu: &mut CPU, addressing: Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute => {
@@ -80,6 +84,10 @@ pub fn lda(cpu: &mut CPU, addressing: Addressing) -> u8 {
 /// * Zero Page X - 4 Cycles
 ///
 /// \* Add 1 if page boundary is crossed
+///
+/// # Flags affected
+/// * Zero
+/// * Negative
 pub fn ldx(cpu: &mut CPU, addressing: Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute => {
@@ -124,6 +132,10 @@ pub fn ldx(cpu: &mut CPU, addressing: Addressing) -> u8 {
 /// * Zero Page X - 4 Cycles
 ///
 /// \* Add 1 if page boundary is crossed
+///
+/// # Flags affected
+/// * Zero
+/// * Negative
 pub fn ldy(cpu: &mut CPU, addressing: Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute => {

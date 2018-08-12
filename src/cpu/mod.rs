@@ -53,6 +53,11 @@ impl CPU {
         self.memory.read(address)
     }
 
+    /// Write a byte to a memory address
+    pub fn write_byte(&mut self, address: u16, byte: u8) {
+        self.memory.write(address, byte);
+    }
+
     /// Read a double from an address
     ///
     /// Reads two bytes and combines them in a 16-bit double in little endian
