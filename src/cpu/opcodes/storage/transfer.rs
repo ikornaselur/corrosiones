@@ -12,6 +12,18 @@ pub fn tax(cpu: &mut CPU) -> u8 {
     2
 }
 
+/// Transfer X index to accumulator
+///
+/// # Flags affected
+/// * Negative
+/// * Zero
+pub fn txa(cpu: &mut CPU) -> u8 {
+    cpu.flags.set_zero_from_byte(cpu.x);
+    cpu.flags.set_negative_from_byte(cpu.x);
+    cpu.a = cpu.x;
+    2
+}
+
 /// Transfer accumulator to Y index
 ///
 /// # Flags affected
@@ -74,6 +86,44 @@ mod test {
         };
 
         tax(&mut cpu);
+
+        assert_eq!(cpu.flags.negative, true);
+    }
+
+    #[test]
+    fn txa_transfers_x_to_a() {
+        let mut cpu = CPU {
+            x: 0xAB,
+            ..CPU::default()
+        };
+
+        let cycles = txa(&mut cpu);
+
+        assert_eq!(cycles, 2);
+        assert_eq!(cpu.a, 0xAB);
+    }
+
+    #[test]
+    fn txa_sets_zero_flag() {
+        let mut cpu = CPU {
+            x: 0,
+            a: 0xFF,
+            ..CPU::default()
+        };
+
+        txa(&mut cpu);
+
+        assert_eq!(cpu.flags.zero, true);
+    }
+
+    #[test]
+    fn txa_sets_negative_flag() {
+        let mut cpu = CPU {
+            x: 0b1000_0000,
+            ..CPU::default()
+        };
+
+        txa(&mut cpu);
 
         assert_eq!(cpu.flags.negative, true);
     }
