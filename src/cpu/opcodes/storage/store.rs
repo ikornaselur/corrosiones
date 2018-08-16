@@ -71,6 +71,43 @@ pub fn sta(cpu: &mut CPU, addressing: Addressing) -> u8 {
         _ => panic!("STA doesn't support {:?} addressing", addressing),
     }
 }
+
+/// Store the X index in memory
+///
+/// # Supported addressing modes
+///
+/// * Absolute - 4 Cycles
+/// * Zero Page - 3 Cycles
+/// * Zero Page Y - 4 Cycles
+///
+/// # Flags affected
+/// None
+pub fn stx(cpu: &mut CPU, addressing: Addressing) -> u8 {
+    match addressing {
+        Addressing::Absolute => {
+            let address = cpu.read_next_double();
+            let x = cpu.x;
+            cpu.write_byte(address, x);
+            4
+        }
+        Addressing::ZeroPage => {
+            let address = cpu.read_next_byte() as u16;
+
+            let x = cpu.x;
+            cpu.write_byte(address, x);
+            3
+        }
+        Addressing::ZeroPageY => {
+            let address = cpu.read_next_byte().wrapping_add(cpu.y) as u16;
+
+            let x = cpu.x;
+            cpu.write_byte(address, x);
+            4
+        }
+        _ => panic!("STX doesn't support {:?} addressing", addressing),
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -184,6 +221,52 @@ mod test {
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0x01, 0xFF]);
 
         let cycles = sta(&mut cpu, Addressing::ZeroPageX);
+
+        assert_eq!(cycles, 4);
+        assert_eq!(cpu.read_byte(0x0003), 0xAB);
+    }
+
+    #[test]
+    fn stx_absolute() {
+        let mut cpu = CPU {
+            pc: 0x0003,
+            x: 0xAB,
+            ..CPU::default()
+        };
+        cpu.memory.load_ram(vec![0xFF, 0xFF, 0xFF, 0x01, 0x00]);
+
+        let cycles = stx(&mut cpu, Addressing::Absolute);
+
+        assert_eq!(cycles, 4);
+        assert_eq!(cpu.read_byte(0x0001), 0xAB);
+    }
+
+    #[test]
+    fn stx_zeropage() {
+        let mut cpu = CPU {
+            pc: 0x0002,
+            x: 0xAB,
+            ..CPU::default()
+        };
+        cpu.memory.load_ram(vec![0xFF, 0xFF, 0x01, 0xFF]);
+
+        let cycles = stx(&mut cpu, Addressing::ZeroPage);
+
+        assert_eq!(cycles, 3);
+        assert_eq!(cpu.read_byte(0x0001), 0xAB);
+    }
+
+    #[test]
+    fn stx_zeropage_y() {
+        let mut cpu = CPU {
+            pc: 0x0002,
+            x: 0xAB,
+            y: 0x02,
+            ..CPU::default()
+        };
+        cpu.memory.load_ram(vec![0xFF, 0xFF, 0x01, 0xFF]);
+
+        let cycles = stx(&mut cpu, Addressing::ZeroPageY);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.read_byte(0x0003), 0xAB);
