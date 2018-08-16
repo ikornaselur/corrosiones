@@ -24,6 +24,18 @@ pub fn tay(cpu: &mut CPU) -> u8 {
     2
 }
 
+/// Transfer stack pointer to Y index
+///
+/// # Flags affected
+/// * Negative
+/// * Zero
+pub fn tsx(cpu: &mut CPU) -> u8 {
+    cpu.flags.set_zero_from_byte(cpu.sp);
+    cpu.flags.set_negative_from_byte(cpu.sp);
+    cpu.x = cpu.sp;
+    2
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -100,6 +112,44 @@ mod test {
         };
 
         tay(&mut cpu);
+
+        assert_eq!(cpu.flags.negative, true);
+    }
+
+    #[test]
+    fn tsx_transfers_a_to_x() {
+        let mut cpu = CPU {
+            sp: 0xAB,
+            ..CPU::default()
+        };
+
+        let cycles = tsx(&mut cpu);
+
+        assert_eq!(cycles, 2);
+        assert_eq!(cpu.x, 0xAB);
+    }
+
+    #[test]
+    fn tsx_sets_zero_flag() {
+        let mut cpu = CPU {
+            sp: 0,
+            x: 0xFF,
+            ..CPU::default()
+        };
+
+        tsx(&mut cpu);
+
+        assert_eq!(cpu.flags.zero, true);
+    }
+
+    #[test]
+    fn tsx_sets_negative_flag() {
+        let mut cpu = CPU {
+            sp: 0b1000_0000,
+            ..CPU::default()
+        };
+
+        tsx(&mut cpu);
 
         assert_eq!(cpu.flags.negative, true);
     }
