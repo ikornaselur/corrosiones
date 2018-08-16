@@ -48,7 +48,7 @@ pub fn tya(cpu: &mut CPU) -> u8 {
     2
 }
 
-/// Transfer stack pointer to Y index
+/// Transfer stack pointer to X index
 ///
 /// # Flags affected
 /// * Negative
@@ -57,6 +57,18 @@ pub fn tsx(cpu: &mut CPU) -> u8 {
     cpu.flags.set_zero_from_byte(cpu.sp);
     cpu.flags.set_negative_from_byte(cpu.sp);
     cpu.x = cpu.sp;
+    2
+}
+
+/// Transfer X index to stack pointer
+///
+/// # Flags affected
+/// * Negative
+/// * Zero
+pub fn txs(cpu: &mut CPU) -> u8 {
+    cpu.flags.set_zero_from_byte(cpu.x);
+    cpu.flags.set_negative_from_byte(cpu.x);
+    cpu.sp = cpu.x;
     2
 }
 
@@ -141,7 +153,7 @@ mod test {
     }
 
     #[test]
-    fn tay_transfers_a_to_x() {
+    fn tay_transfers_a_to_y() {
         let mut cpu = CPU {
             a: 0xAB,
             ..CPU::default()
@@ -179,7 +191,7 @@ mod test {
     }
 
     #[test]
-    fn tya_transfers_x_to_a() {
+    fn tya_transfers_y_to_a() {
         let mut cpu = CPU {
             y: 0xAB,
             ..CPU::default()
@@ -217,7 +229,7 @@ mod test {
     }
 
     #[test]
-    fn tsx_transfers_a_to_x() {
+    fn tsx_transfers_sp_to_x() {
         let mut cpu = CPU {
             sp: 0xAB,
             ..CPU::default()
@@ -250,6 +262,44 @@ mod test {
         };
 
         tsx(&mut cpu);
+
+        assert_eq!(cpu.flags.negative, true);
+    }
+
+    #[test]
+    fn txs_transfers_x_to_sp() {
+        let mut cpu = CPU {
+            x: 0xAB,
+            ..CPU::default()
+        };
+
+        let cycles = txs(&mut cpu);
+
+        assert_eq!(cycles, 2);
+        assert_eq!(cpu.sp, 0xAB);
+    }
+
+    #[test]
+    fn txs_sets_zero_flag() {
+        let mut cpu = CPU {
+            x: 0,
+            sp: 0xFF,
+            ..CPU::default()
+        };
+
+        txs(&mut cpu);
+
+        assert_eq!(cpu.flags.zero, true);
+    }
+
+    #[test]
+    fn txs_sets_negative_flag() {
+        let mut cpu = CPU {
+            x: 0b1000_0000,
+            ..CPU::default()
+        };
+
+        txs(&mut cpu);
 
         assert_eq!(cpu.flags.negative, true);
     }
