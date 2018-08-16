@@ -32,6 +32,10 @@ impl Flags {
     pub fn set_negative_from_byte(&mut self, byte: u8) {
         self.negative = byte >> 7 & 1 == 1;
     }
+
+    pub fn set_carry(&mut self, carry: bool) {
+        self.carry = carry;
+    }
 }
 
 impl From<u8> for Flags {
