@@ -36,6 +36,10 @@ impl Flags {
     pub fn set_carry(&mut self, carry: bool) {
         self.carry = carry;
     }
+
+    pub fn set_overflow(&mut self, overflow: bool) {
+        self.overflow = overflow;
+    }
 }
 
 impl From<u8> for Flags {
