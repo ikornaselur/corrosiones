@@ -36,6 +36,18 @@ pub fn tay(cpu: &mut CPU) -> u8 {
     2
 }
 
+/// Transfer Y index to accumulator
+///
+/// # Flags affected
+/// * Negative
+/// * Zero
+pub fn tya(cpu: &mut CPU) -> u8 {
+    cpu.flags.set_zero_from_byte(cpu.y);
+    cpu.flags.set_negative_from_byte(cpu.y);
+    cpu.a = cpu.y;
+    2
+}
+
 /// Transfer stack pointer to Y index
 ///
 /// # Flags affected
@@ -162,6 +174,44 @@ mod test {
         };
 
         tay(&mut cpu);
+
+        assert_eq!(cpu.flags.negative, true);
+    }
+
+    #[test]
+    fn tya_transfers_x_to_a() {
+        let mut cpu = CPU {
+            y: 0xAB,
+            ..CPU::default()
+        };
+
+        let cycles = tya(&mut cpu);
+
+        assert_eq!(cycles, 2);
+        assert_eq!(cpu.a, 0xAB);
+    }
+
+    #[test]
+    fn tya_sets_zero_flag() {
+        let mut cpu = CPU {
+            y: 0,
+            a: 0xFF,
+            ..CPU::default()
+        };
+
+        tya(&mut cpu);
+
+        assert_eq!(cpu.flags.zero, true);
+    }
+
+    #[test]
+    fn tya_sets_negative_flag() {
+        let mut cpu = CPU {
+            y: 0b1000_0000,
+            ..CPU::default()
+        };
+
+        tya(&mut cpu);
 
         assert_eq!(cpu.flags.negative, true);
     }
