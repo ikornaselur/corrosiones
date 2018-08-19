@@ -1,4 +1,4 @@
 pub mod carry;
+pub mod negative;
 pub mod overflow;
-pub mod sign;
 pub mod zero;
