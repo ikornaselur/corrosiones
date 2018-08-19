@@ -81,15 +81,29 @@ impl CPU {
         self.memory.write(address, byte);
     }
 
-                self.memory.write(address, byte);
+    pub fn update_byte<F>(&mut self, addressing: Addressing, update_fn: F) -> u8
+    where
+        F: Fn(u8) -> u8,
+    {
+        let address = match addressing {
+            Addressing::Absolute => self.read_next_double(),
+            Addressing::AbsoluteX => self.read_next_double() + u16::from(self.x),
+            Addressing::AbsoluteY => self.read_next_double() + u16::from(self.y),
+            Addressing::IndirectX => {
+                let ptr = u16::from(self.read_next_byte() + self.x);
+                self.read_double(ptr)
             }
-            Addressing::ZeroPageY => {
-                let address = self.read_next_byte().wrapping_add(self.y) as u16;
-
-                self.memory.write(address, byte);
+            Addressing::IndirectY => {
+                let ptr = u16::from(self.read_next_byte());
+                self.read_double(ptr) + u16::from(self.y)
             }
-            _ => panic!("write_byte doesn't support {:?} addressing", addressing),
+            Addressing::ZeroPage => self.read_next_byte() as u16,
+            Addressing::ZeroPageX => self.read_next_byte().wrapping_add(self.x) as u16,
+            _ => panic!("update_byte doesn't support {:?} addressing", addressing),
         };
+        let byte = update_fn(self.memory.read(address));
+        self.memory.write(address, byte);
+        byte
     }
 
     fn read_next_byte(&mut self) -> u8 {
