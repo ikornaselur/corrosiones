@@ -155,6 +155,10 @@ impl CPU {
     pub fn offset_pc(&mut self, offset: u16) {
         self.pc += offset;
     }
+
+    fn set_pc(&mut self, address: u16) {
+        self.pc = address;
+    }
 }
 
 #[cfg(test)]
