@@ -47,7 +47,7 @@ mod test {
             ..CPU::default()
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0x05]);
-        cpu.flags.set_negative_from_byte(1 as u8);
+        cpu.flags.negative = false;
 
         bpl(&mut cpu);
 
@@ -61,7 +61,7 @@ mod test {
             ..CPU::default()
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0x05]);
-        cpu.flags.set_negative_from_byte(-1i8 as u8);
+        cpu.flags.negative = true;
 
         bpl(&mut cpu);
 
@@ -75,7 +75,7 @@ mod test {
             ..CPU::default()
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0x05]);
-        cpu.flags.set_negative_from_byte(1);
+        cpu.flags.negative = false;
 
         bmi(&mut cpu);
 
@@ -89,7 +89,7 @@ mod test {
             ..CPU::default()
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0x05]);
-        cpu.flags.set_negative_from_byte(-1i8 as u8);
+        cpu.flags.negative = true;
 
         bmi(&mut cpu);
 

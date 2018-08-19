@@ -47,7 +47,7 @@ mod test {
             ..CPU::default()
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0x05]);
-        cpu.flags.set_carry(false);
+        cpu.flags.carry = false;
 
         bcc(&mut cpu);
 
@@ -61,7 +61,7 @@ mod test {
             ..CPU::default()
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0x05]);
-        cpu.flags.set_carry(true);
+        cpu.flags.carry = true;
 
         bcc(&mut cpu);
 
@@ -75,7 +75,7 @@ mod test {
             ..CPU::default()
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0x05]);
-        cpu.flags.set_carry(false);
+        cpu.flags.carry = false;
 
         bcs(&mut cpu);
 
@@ -89,7 +89,7 @@ mod test {
             ..CPU::default()
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0x05]);
-        cpu.flags.set_carry(true);
+        cpu.flags.carry = true;
 
         bcs(&mut cpu);
 
