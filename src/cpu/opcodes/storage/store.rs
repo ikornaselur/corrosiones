@@ -21,19 +21,19 @@ pub fn sta(cpu: &mut CPU, addressing: Addressing) -> u8 {
         Addressing::Absolute => {
             let address = cpu.read_next_double();
             let acc = cpu.a;
-            cpu.write_byte(address, acc);
+            cpu.raw_write_byte(address, acc);
             4
         }
         Addressing::AbsoluteX => {
             let address = cpu.read_next_double() + u16::from(cpu.x);
             let acc = cpu.a;
-            cpu.write_byte(address, acc);
+            cpu.raw_write_byte(address, acc);
             4 // Add 1 if page boundary is crossed
         }
         Addressing::AbsoluteY => {
             let address = cpu.read_next_double() + u16::from(cpu.y);
             let acc = cpu.a;
-            cpu.write_byte(address, acc);
+            cpu.raw_write_byte(address, acc);
             4 // Add 1 if page boundary is crossed
         }
         Addressing::IndirectX => {
@@ -42,7 +42,7 @@ pub fn sta(cpu: &mut CPU, addressing: Addressing) -> u8 {
             let address = cpu.read_double(ptr);
 
             let acc = cpu.a;
-            cpu.write_byte(address, acc);
+            cpu.raw_write_byte(address, acc);
             6
         }
         Addressing::IndirectY => {
@@ -51,21 +51,21 @@ pub fn sta(cpu: &mut CPU, addressing: Addressing) -> u8 {
             let address = cpu.read_double(ptr) + u16::from(cpu.y);
 
             let acc = cpu.a;
-            cpu.write_byte(address, acc);
+            cpu.raw_write_byte(address, acc);
             5 // Add 1 if page boundary is crossed
         }
         Addressing::ZeroPage => {
             let address = cpu.read_next_byte() as u16;
 
             let acc = cpu.a;
-            cpu.write_byte(address, acc);
+            cpu.raw_write_byte(address, acc);
             3
         }
         Addressing::ZeroPageX => {
             let address = cpu.read_next_byte().wrapping_add(cpu.x) as u16;
 
             let acc = cpu.a;
-            cpu.write_byte(address, acc);
+            cpu.raw_write_byte(address, acc);
             4
         }
         _ => panic!("STA doesn't support {:?} addressing", addressing),
@@ -87,21 +87,21 @@ pub fn stx(cpu: &mut CPU, addressing: Addressing) -> u8 {
         Addressing::Absolute => {
             let address = cpu.read_next_double();
             let x = cpu.x;
-            cpu.write_byte(address, x);
+            cpu.raw_write_byte(address, x);
             4
         }
         Addressing::ZeroPage => {
             let address = cpu.read_next_byte() as u16;
 
             let x = cpu.x;
-            cpu.write_byte(address, x);
+            cpu.raw_write_byte(address, x);
             3
         }
         Addressing::ZeroPageY => {
             let address = cpu.read_next_byte().wrapping_add(cpu.y) as u16;
 
             let x = cpu.x;
-            cpu.write_byte(address, x);
+            cpu.raw_write_byte(address, x);
             4
         }
         _ => panic!("STX doesn't support {:?} addressing", addressing),
@@ -123,21 +123,21 @@ pub fn sty(cpu: &mut CPU, addressing: Addressing) -> u8 {
         Addressing::Absolute => {
             let address = cpu.read_next_double();
             let y = cpu.y;
-            cpu.write_byte(address, y);
+            cpu.raw_write_byte(address, y);
             4
         }
         Addressing::ZeroPage => {
             let address = cpu.read_next_byte() as u16;
 
             let y = cpu.y;
-            cpu.write_byte(address, y);
+            cpu.raw_write_byte(address, y);
             3
         }
         Addressing::ZeroPageX => {
             let address = cpu.read_next_byte().wrapping_add(cpu.x) as u16;
 
             let y = cpu.y;
-            cpu.write_byte(address, y);
+            cpu.raw_write_byte(address, y);
             4
         }
         _ => panic!("STX doesn't support {:?} addressing", addressing),
@@ -160,7 +160,7 @@ mod test {
         let cycles = sta(&mut cpu, Addressing::Absolute);
 
         assert_eq!(cycles, 4);
-        assert_eq!(cpu.read_byte(0x0001), 0xAB);
+        assert_eq!(cpu.raw_read_byte(0x0001), 0xAB);
     }
 
     #[test]
@@ -177,7 +177,7 @@ mod test {
         let cycles = sta(&mut cpu, Addressing::AbsoluteX);
 
         assert_eq!(cycles, 4);
-        assert_eq!(cpu.read_byte(0x0006), 0xAB);
+        assert_eq!(cpu.raw_read_byte(0x0006), 0xAB);
     }
 
     #[test]
@@ -194,7 +194,7 @@ mod test {
         let cycles = sta(&mut cpu, Addressing::AbsoluteY);
 
         assert_eq!(cycles, 4);
-        assert_eq!(cpu.read_byte(0x0006), 0xAB);
+        assert_eq!(cpu.raw_read_byte(0x0006), 0xAB);
     }
 
     #[test]
@@ -211,7 +211,7 @@ mod test {
         let cycles = sta(&mut cpu, Addressing::IndirectX);
 
         assert_eq!(cycles, 6);
-        assert_eq!(cpu.read_byte(0x0001), 0xAB);
+        assert_eq!(cpu.raw_read_byte(0x0001), 0xAB);
     }
 
     #[test]
@@ -228,7 +228,7 @@ mod test {
         let cycles = sta(&mut cpu, Addressing::IndirectY);
 
         assert_eq!(cycles, 5);
-        assert_eq!(cpu.read_byte(0x0002), 0xAB);
+        assert_eq!(cpu.raw_read_byte(0x0002), 0xAB);
     }
 
     #[test]
@@ -243,7 +243,7 @@ mod test {
         let cycles = sta(&mut cpu, Addressing::ZeroPage);
 
         assert_eq!(cycles, 3);
-        assert_eq!(cpu.read_byte(0x0001), 0xAB);
+        assert_eq!(cpu.raw_read_byte(0x0001), 0xAB);
     }
 
     #[test]
@@ -259,7 +259,7 @@ mod test {
         let cycles = sta(&mut cpu, Addressing::ZeroPageX);
 
         assert_eq!(cycles, 4);
-        assert_eq!(cpu.read_byte(0x0003), 0xAB);
+        assert_eq!(cpu.raw_read_byte(0x0003), 0xAB);
     }
 
     #[test]
@@ -274,7 +274,7 @@ mod test {
         let cycles = stx(&mut cpu, Addressing::Absolute);
 
         assert_eq!(cycles, 4);
-        assert_eq!(cpu.read_byte(0x0001), 0xAB);
+        assert_eq!(cpu.raw_read_byte(0x0001), 0xAB);
     }
 
     #[test]
@@ -289,7 +289,7 @@ mod test {
         let cycles = stx(&mut cpu, Addressing::ZeroPage);
 
         assert_eq!(cycles, 3);
-        assert_eq!(cpu.read_byte(0x0001), 0xAB);
+        assert_eq!(cpu.raw_read_byte(0x0001), 0xAB);
     }
 
     #[test]
@@ -305,7 +305,7 @@ mod test {
         let cycles = stx(&mut cpu, Addressing::ZeroPageY);
 
         assert_eq!(cycles, 4);
-        assert_eq!(cpu.read_byte(0x0003), 0xAB);
+        assert_eq!(cpu.raw_read_byte(0x0003), 0xAB);
     }
 
     #[test]
@@ -320,7 +320,7 @@ mod test {
         let cycles = sty(&mut cpu, Addressing::Absolute);
 
         assert_eq!(cycles, 4);
-        assert_eq!(cpu.read_byte(0x0001), 0xAB);
+        assert_eq!(cpu.raw_read_byte(0x0001), 0xAB);
     }
 
     #[test]
@@ -335,7 +335,7 @@ mod test {
         let cycles = sty(&mut cpu, Addressing::ZeroPage);
 
         assert_eq!(cycles, 3);
-        assert_eq!(cpu.read_byte(0x0001), 0xAB);
+        assert_eq!(cpu.raw_read_byte(0x0001), 0xAB);
     }
 
     #[test]
@@ -351,6 +351,6 @@ mod test {
         let cycles = sty(&mut cpu, Addressing::ZeroPageX);
 
         assert_eq!(cycles, 4);
-        assert_eq!(cpu.read_byte(0x0003), 0xAB);
+        assert_eq!(cpu.raw_read_byte(0x0003), 0xAB);
     }
 }

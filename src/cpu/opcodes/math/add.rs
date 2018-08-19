@@ -26,44 +26,19 @@ fn get_overflow(m: u8, n: u8, result: u8) -> bool {
 /// * Zero
 /// * Negative
 pub fn adc(cpu: &mut CPU, addressing: Addressing) -> u8 {
-    let (original_byte, cycles) = match addressing {
-        Addressing::Absolute => {
-            let address = cpu.read_next_double();
-            (cpu.read_byte(address), 4)
-        }
-        Addressing::AbsoluteX => {
-            let address = cpu.read_next_double() + u16::from(cpu.x);
-            (cpu.read_byte(address), 4)
-        }
-        Addressing::AbsoluteY => {
-            let address = cpu.read_next_double() + u16::from(cpu.y);
-            (cpu.read_byte(address), 4)
-        }
-        Addressing::Immediate => (cpu.read_next_byte(), 2),
-        Addressing::IndirectX => {
-            let ptr = u16::from(cpu.read_next_byte() + cpu.x);
-
-            let address = cpu.read_double(ptr);
-
-            (cpu.read_byte(address), 6)
-        }
-        Addressing::IndirectY => {
-            let ptr = u16::from(cpu.read_next_byte());
-
-            let address = cpu.read_double(ptr) + u16::from(cpu.y);
-
-            (cpu.read_byte(address), 5)
-        }
-        Addressing::ZeroPage => {
-            let address = cpu.read_next_byte() as u16;
-            (cpu.read_byte(address), 3)
-        }
-        Addressing::ZeroPageX => {
-            let address = cpu.read_next_byte().wrapping_add(cpu.x) as u16;
-            (cpu.read_byte(address), 4)
-        }
+    let cycles = match addressing {
+        Addressing::Absolute
+        | Addressing::AbsoluteX
+        | Addressing::AbsoluteY
+        | Addressing::ZeroPageX => 4,
+        Addressing::Immediate => 2,
+        Addressing::IndirectX => 6,
+        Addressing::IndirectY => 5,
+        Addressing::ZeroPage => 3,
         _ => panic!("ADC doesn't support {:?} addressing", addressing),
     };
+
+    let original_byte = cpu.read_byte(addressing);
 
     let (byte, byte_carry) = if cpu.flags.carry {
         original_byte.overflowing_add(1)

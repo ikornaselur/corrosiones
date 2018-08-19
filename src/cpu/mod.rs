@@ -36,6 +36,47 @@ impl CPU {
         CPU::default()
     }
 
+    pub fn read_byte(&mut self, addressing: Addressing) -> u8 {
+        match addressing {
+            Addressing::Absolute => {
+                let address = self.read_next_double();
+                self.memory.read(address)
+            }
+            Addressing::AbsoluteX => {
+                let address = self.read_next_double() + u16::from(self.x);
+                self.memory.read(address)
+            }
+            Addressing::AbsoluteY => {
+                let address = self.read_next_double() + u16::from(self.y);
+                self.memory.read(address)
+            }
+            Addressing::Immediate => self.read_next_byte(),
+            Addressing::IndirectX => {
+                let ptr = u16::from(self.read_next_byte() + self.x);
+
+                let address = self.read_double(ptr);
+
+                self.memory.read(address)
+            }
+            Addressing::IndirectY => {
+                let ptr = u16::from(self.read_next_byte());
+
+                let address = self.read_double(ptr) + u16::from(self.y);
+
+                self.memory.read(address)
+            }
+            Addressing::ZeroPage => {
+                let address = self.read_next_byte() as u16;
+                self.memory.read(address)
+            }
+            Addressing::ZeroPageX => {
+                let address = self.read_next_byte().wrapping_add(self.x) as u16;
+                self.memory.read(address)
+            }
+            _ => panic!("read_byte doesn't support {:?} addressing", addressing),
+        }
+    }
+
     pub fn read_next_byte(&mut self) -> u8 {
         let byte = self.memory.read(self.pc);
         self.pc += 1;
@@ -49,12 +90,12 @@ impl CPU {
     }
 
     /// Read a byte from an address
-    pub fn read_byte(&self, address: u16) -> u8 {
+    pub fn raw_read_byte(&self, address: u16) -> u8 {
         self.memory.read(address)
     }
 
     /// Write a byte to a memory address
-    pub fn write_byte(&mut self, address: u16, byte: u8) {
+    pub fn raw_write_byte(&mut self, address: u16, byte: u8) {
         self.memory.write(address, byte);
     }
 
