@@ -151,6 +151,10 @@ impl CPU {
         let msb = self.memory.read(address + 1);
         (u16::from(msb) << 8) + u16::from(lsb)
     }
+
+    pub fn offset_pc(&mut self, offset: u16) {
+        self.pc += offset;
+    }
 }
 
 #[cfg(test)]
