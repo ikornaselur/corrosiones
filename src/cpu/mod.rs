@@ -77,6 +77,53 @@ impl CPU {
         }
     }
 
+    pub fn write_byte(&mut self, byte: u8, addressing: Addressing) {
+        match addressing {
+            Addressing::Absolute => {
+                let address = self.read_next_double();
+                self.memory.write(address, byte);
+            }
+            Addressing::AbsoluteX => {
+                let address = self.read_next_double() + u16::from(self.x);
+                self.memory.write(address, byte);
+            }
+            Addressing::AbsoluteY => {
+                let address = self.read_next_double() + u16::from(self.y);
+                self.memory.write(address, byte);
+            }
+            Addressing::IndirectX => {
+                let ptr = u16::from(self.read_next_byte() + self.x);
+
+                let address = self.read_double(ptr);
+
+                self.memory.write(address, byte);
+            }
+            Addressing::IndirectY => {
+                let ptr = u16::from(self.read_next_byte());
+
+                let address = self.read_double(ptr) + u16::from(self.y);
+
+                self.memory.write(address, byte);
+            }
+            Addressing::ZeroPage => {
+                let address = self.read_next_byte() as u16;
+
+                self.memory.write(address, byte);
+            }
+            Addressing::ZeroPageX => {
+                let address = self.read_next_byte().wrapping_add(self.x) as u16;
+
+                self.memory.write(address, byte);
+            }
+            Addressing::ZeroPageY => {
+                let address = self.read_next_byte().wrapping_add(self.y) as u16;
+
+                self.memory.write(address, byte);
+            }
+            _ => panic!("write_byte doesn't support {:?} addressing", addressing),
+        };
+    }
+
     pub fn read_next_byte(&mut self) -> u8 {
         let byte = self.memory.read(self.pc);
         self.pc += 1;

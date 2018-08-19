@@ -17,59 +17,20 @@ use cpu::{Addressing, CPU};
 /// # Flags affected
 /// None
 pub fn sta(cpu: &mut CPU, addressing: Addressing) -> u8 {
-    match addressing {
-        Addressing::Absolute => {
-            let address = cpu.read_next_double();
-            let acc = cpu.a;
-            cpu.raw_write_byte(address, acc);
-            4
-        }
-        Addressing::AbsoluteX => {
-            let address = cpu.read_next_double() + u16::from(cpu.x);
-            let acc = cpu.a;
-            cpu.raw_write_byte(address, acc);
-            4 // Add 1 if page boundary is crossed
-        }
-        Addressing::AbsoluteY => {
-            let address = cpu.read_next_double() + u16::from(cpu.y);
-            let acc = cpu.a;
-            cpu.raw_write_byte(address, acc);
-            4 // Add 1 if page boundary is crossed
-        }
-        Addressing::IndirectX => {
-            let ptr = u16::from(cpu.read_next_byte() + cpu.x);
-
-            let address = cpu.read_double(ptr);
-
-            let acc = cpu.a;
-            cpu.raw_write_byte(address, acc);
-            6
-        }
-        Addressing::IndirectY => {
-            let ptr = u16::from(cpu.read_next_byte());
-
-            let address = cpu.read_double(ptr) + u16::from(cpu.y);
-
-            let acc = cpu.a;
-            cpu.raw_write_byte(address, acc);
-            5 // Add 1 if page boundary is crossed
-        }
-        Addressing::ZeroPage => {
-            let address = cpu.read_next_byte() as u16;
-
-            let acc = cpu.a;
-            cpu.raw_write_byte(address, acc);
-            3
-        }
-        Addressing::ZeroPageX => {
-            let address = cpu.read_next_byte().wrapping_add(cpu.x) as u16;
-
-            let acc = cpu.a;
-            cpu.raw_write_byte(address, acc);
-            4
-        }
+    let cycles = match addressing {
+        Addressing::Absolute
+        | Addressing::AbsoluteX
+        | Addressing::AbsoluteY
+        | Addressing::ZeroPageX => 4,
+        Addressing::IndirectX => 6,
+        Addressing::IndirectY => 5,
+        Addressing::ZeroPage => 3,
         _ => panic!("STA doesn't support {:?} addressing", addressing),
-    }
+    };
+
+    let acc = cpu.a;
+    cpu.write_byte(acc, addressing);
+    cycles
 }
 
 /// Store the X index in memory
@@ -83,29 +44,15 @@ pub fn sta(cpu: &mut CPU, addressing: Addressing) -> u8 {
 /// # Flags affected
 /// None
 pub fn stx(cpu: &mut CPU, addressing: Addressing) -> u8 {
-    match addressing {
-        Addressing::Absolute => {
-            let address = cpu.read_next_double();
-            let x = cpu.x;
-            cpu.raw_write_byte(address, x);
-            4
-        }
-        Addressing::ZeroPage => {
-            let address = cpu.read_next_byte() as u16;
-
-            let x = cpu.x;
-            cpu.raw_write_byte(address, x);
-            3
-        }
-        Addressing::ZeroPageY => {
-            let address = cpu.read_next_byte().wrapping_add(cpu.y) as u16;
-
-            let x = cpu.x;
-            cpu.raw_write_byte(address, x);
-            4
-        }
+    let cycles = match addressing {
+        Addressing::Absolute | Addressing::ZeroPageY => 4,
+        Addressing::ZeroPage => 3,
         _ => panic!("STX doesn't support {:?} addressing", addressing),
-    }
+    };
+
+    let x = cpu.x;
+    cpu.write_byte(x, addressing);
+    cycles
 }
 
 /// Store the Y index in memory
@@ -119,29 +66,15 @@ pub fn stx(cpu: &mut CPU, addressing: Addressing) -> u8 {
 /// # Flags affected
 /// None
 pub fn sty(cpu: &mut CPU, addressing: Addressing) -> u8 {
-    match addressing {
-        Addressing::Absolute => {
-            let address = cpu.read_next_double();
-            let y = cpu.y;
-            cpu.raw_write_byte(address, y);
-            4
-        }
-        Addressing::ZeroPage => {
-            let address = cpu.read_next_byte() as u16;
+    let cycles = match addressing {
+        Addressing::Absolute | Addressing::ZeroPageX => 4,
+        Addressing::ZeroPage => 3,
+        _ => panic!("STY doesn't support {:?} addressing", addressing),
+    };
 
-            let y = cpu.y;
-            cpu.raw_write_byte(address, y);
-            3
-        }
-        Addressing::ZeroPageX => {
-            let address = cpu.read_next_byte().wrapping_add(cpu.x) as u16;
-
-            let y = cpu.y;
-            cpu.raw_write_byte(address, y);
-            4
-        }
-        _ => panic!("STX doesn't support {:?} addressing", addressing),
-    }
+    let y = cpu.y;
+    cpu.write_byte(y, addressing);
+    cycles
 }
 
 #[cfg(test)]
