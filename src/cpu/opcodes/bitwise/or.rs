@@ -16,8 +16,9 @@ use cpu::{Addressing, CPU};
 /// \* Add 1 if page boundary is crossed
 ///
 /// # Flags affected
-/// * Zero
+///
 /// * Negative
+/// * Zero
 pub fn ora(cpu: &mut CPU, addressing: Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute
@@ -53,8 +54,9 @@ pub fn ora(cpu: &mut CPU, addressing: Addressing) -> u8 {
 /// \* Add 1 if page boundary is crossed
 ///
 /// # Flags affected
-/// * Zero
+///
 /// * Negative
+/// * Zero
 pub fn eor(cpu: &mut CPU, addressing: Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute

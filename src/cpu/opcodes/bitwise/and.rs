@@ -16,8 +16,9 @@ use cpu::{Addressing, CPU};
 /// \* Add 1 if page boundary is crossed
 ///
 /// # Flags affected
-/// * Zero
+///
 /// * Negative
+/// * Zero
 pub fn and(cpu: &mut CPU, addressing: Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute

@@ -17,10 +17,11 @@ use cpu::{Addressing, CPU};
 /// \* Add 1 if page boundary is crossed
 ///
 /// # Flags affected
-/// * Zero
+///
+/// * Carry
 /// * Negative
 /// * Overflow
-/// * Carry
+/// * Zero
 pub fn sbc(cpu: &mut CPU, addressing: Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute

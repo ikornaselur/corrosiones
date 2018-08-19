@@ -35,10 +35,11 @@ pub(super) fn add_byte_to_accumulator(cpu: &mut CPU, original_byte: u8) {
 /// \* Add 1 if page boundary is crossed
 ///
 /// # Flags affected
-/// * Zero
+///
+/// * Carry
 /// * Negative
 /// * Overflow
-/// * Carry
+/// * Zero
 pub fn adc(cpu: &mut CPU, addressing: Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute

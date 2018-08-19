@@ -3,6 +3,7 @@ use cpu::CPU;
 /// Transfer accumulator to X index
 ///
 /// # Flags affected
+///
 /// * Negative
 /// * Zero
 pub fn tax(cpu: &mut CPU) -> u8 {
@@ -15,6 +16,7 @@ pub fn tax(cpu: &mut CPU) -> u8 {
 /// Transfer X index to accumulator
 ///
 /// # Flags affected
+///
 /// * Negative
 /// * Zero
 pub fn txa(cpu: &mut CPU) -> u8 {
@@ -27,6 +29,7 @@ pub fn txa(cpu: &mut CPU) -> u8 {
 /// Transfer accumulator to Y index
 ///
 /// # Flags affected
+///
 /// * Negative
 /// * Zero
 pub fn tay(cpu: &mut CPU) -> u8 {
@@ -39,6 +42,7 @@ pub fn tay(cpu: &mut CPU) -> u8 {
 /// Transfer Y index to accumulator
 ///
 /// # Flags affected
+///
 /// * Negative
 /// * Zero
 pub fn tya(cpu: &mut CPU) -> u8 {
@@ -51,6 +55,7 @@ pub fn tya(cpu: &mut CPU) -> u8 {
 /// Transfer stack pointer to X index
 ///
 /// # Flags affected
+///
 /// * Negative
 /// * Zero
 pub fn tsx(cpu: &mut CPU) -> u8 {
@@ -63,6 +68,7 @@ pub fn tsx(cpu: &mut CPU) -> u8 {
 /// Transfer X index to stack pointer
 ///
 /// # Flags affected
+///
 /// * Negative
 /// * Zero
 pub fn txs(cpu: &mut CPU) -> u8 {

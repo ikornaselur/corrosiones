@@ -13,9 +13,9 @@ use cpu::{Addressing, CPU};
 ///
 /// # Flags affected
 ///
-/// * Zero
 /// * Negative
 /// * Overflow
+/// * Zero
 pub fn bit(cpu: &mut CPU, addressing: Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute => 4,

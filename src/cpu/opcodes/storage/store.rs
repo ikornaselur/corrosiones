@@ -15,6 +15,7 @@ use cpu::{Addressing, CPU};
 /// \* Add 1 if page boundary is crossed
 ///
 /// # Flags affected
+///
 /// None
 pub fn sta(cpu: &mut CPU, addressing: Addressing) -> u8 {
     let cycles = match addressing {
@@ -42,6 +43,7 @@ pub fn sta(cpu: &mut CPU, addressing: Addressing) -> u8 {
 /// * Zero Page Y - 4 Cycles
 ///
 /// # Flags affected
+///
 /// None
 pub fn stx(cpu: &mut CPU, addressing: Addressing) -> u8 {
     let cycles = match addressing {
@@ -64,6 +66,7 @@ pub fn stx(cpu: &mut CPU, addressing: Addressing) -> u8 {
 /// * Zero Page X - 4 Cycles
 ///
 /// # Flags affected
+///
 /// None
 pub fn sty(cpu: &mut CPU, addressing: Addressing) -> u8 {
     let cycles = match addressing {

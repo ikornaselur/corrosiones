@@ -11,8 +11,8 @@ use cpu::{Addressing, CPU};
 ///
 /// # Flags affected
 ///
-/// * Zero
 /// * Negative
+/// * Zero
 pub fn dec(cpu: &mut CPU, addressing: Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute | Addressing::ZeroPageX => 6,
@@ -33,8 +33,8 @@ pub fn dec(cpu: &mut CPU, addressing: Addressing) -> u8 {
 ///
 /// # Flags affected
 ///
-/// * Zero
 /// * Negative
+/// * Zero
 pub fn dex(cpu: &mut CPU) -> u8 {
     let x = cpu.x.wrapping_sub(1);
     cpu.x = x;
@@ -49,8 +49,8 @@ pub fn dex(cpu: &mut CPU) -> u8 {
 ///
 /// # Flags affected
 ///
-/// * Zero
 /// * Negative
+/// * Zero
 pub fn dey(cpu: &mut CPU) -> u8 {
     let y = cpu.y.wrapping_sub(1);
     cpu.y = y;
