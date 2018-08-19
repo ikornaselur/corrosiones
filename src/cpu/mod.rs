@@ -37,81 +37,49 @@ impl CPU {
     }
 
     pub fn read_byte(&mut self, addressing: Addressing) -> u8 {
-        match addressing {
-            Addressing::Absolute => {
-                let address = self.read_next_double();
-                self.memory.read(address)
+        let address = match addressing {
+            Addressing::Immediate => {
+                // Return immediately the nest byte on immediate
+                return self.read_next_byte();
             }
-            Addressing::AbsoluteX => {
-                let address = self.read_next_double() + u16::from(self.x);
-                self.memory.read(address)
-            }
-            Addressing::AbsoluteY => {
-                let address = self.read_next_double() + u16::from(self.y);
-                self.memory.read(address)
-            }
-            Addressing::Immediate => self.read_next_byte(),
+            Addressing::Absolute => self.read_next_double(),
+            Addressing::AbsoluteX => self.read_next_double() + u16::from(self.x),
+            Addressing::AbsoluteY => self.read_next_double() + u16::from(self.y),
             Addressing::IndirectX => {
                 let ptr = u16::from(self.read_next_byte() + self.x);
-
-                let address = self.read_double(ptr);
-
-                self.memory.read(address)
+                self.read_double(ptr)
             }
             Addressing::IndirectY => {
                 let ptr = u16::from(self.read_next_byte());
-
-                let address = self.read_double(ptr) + u16::from(self.y);
-
-                self.memory.read(address)
+                self.read_double(ptr) + u16::from(self.y)
             }
-            Addressing::ZeroPage => {
-                let address = self.read_next_byte() as u16;
-                self.memory.read(address)
-            }
-            Addressing::ZeroPageX => {
-                let address = self.read_next_byte().wrapping_add(self.x) as u16;
-                self.memory.read(address)
-            }
+            Addressing::ZeroPage => self.read_next_byte() as u16,
+            Addressing::ZeroPageX => self.read_next_byte().wrapping_add(self.x) as u16,
             _ => panic!("read_byte doesn't support {:?} addressing", addressing),
-        }
+        };
+        self.memory.read(address)
     }
 
     pub fn write_byte(&mut self, byte: u8, addressing: Addressing) {
-        match addressing {
-            Addressing::Absolute => {
-                let address = self.read_next_double();
-                self.memory.write(address, byte);
-            }
-            Addressing::AbsoluteX => {
-                let address = self.read_next_double() + u16::from(self.x);
-                self.memory.write(address, byte);
-            }
-            Addressing::AbsoluteY => {
-                let address = self.read_next_double() + u16::from(self.y);
-                self.memory.write(address, byte);
-            }
+        let address = match addressing {
+            Addressing::Absolute => self.read_next_double(),
+            Addressing::AbsoluteX => self.read_next_double() + u16::from(self.x),
+            Addressing::AbsoluteY => self.read_next_double() + u16::from(self.y),
             Addressing::IndirectX => {
                 let ptr = u16::from(self.read_next_byte() + self.x);
-
-                let address = self.read_double(ptr);
-
-                self.memory.write(address, byte);
+                self.read_double(ptr)
             }
             Addressing::IndirectY => {
                 let ptr = u16::from(self.read_next_byte());
-
-                let address = self.read_double(ptr) + u16::from(self.y);
-
-                self.memory.write(address, byte);
+                self.read_double(ptr) + u16::from(self.y)
             }
-            Addressing::ZeroPage => {
-                let address = self.read_next_byte() as u16;
-
-                self.memory.write(address, byte);
-            }
-            Addressing::ZeroPageX => {
-                let address = self.read_next_byte().wrapping_add(self.x) as u16;
+            Addressing::ZeroPage => self.read_next_byte() as u16,
+            Addressing::ZeroPageX => self.read_next_byte().wrapping_add(self.x) as u16,
+            Addressing::ZeroPageY => self.read_next_byte().wrapping_add(self.y) as u16,
+            _ => panic!("write_byte doesn't support {:?} addressing", addressing),
+        };
+        self.memory.write(address, byte);
+    }
 
                 self.memory.write(address, byte);
             }
@@ -124,13 +92,13 @@ impl CPU {
         };
     }
 
-    pub fn read_next_byte(&mut self) -> u8 {
+    fn read_next_byte(&mut self) -> u8 {
         let byte = self.memory.read(self.pc);
         self.pc += 1;
         byte
     }
 
-    pub fn read_next_double(&mut self) -> u16 {
+    fn read_next_double(&mut self) -> u16 {
         let lsb = self.read_next_byte();
         let msb = self.read_next_byte();
         (u16::from(msb) << 8) + u16::from(lsb)
