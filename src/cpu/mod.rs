@@ -37,69 +37,78 @@ impl CPU {
         CPU::default()
     }
 
-    pub fn read_byte(&mut self, addressing: Addressing) -> u8 {
+    pub fn read_byte(&mut self, addressing: &Addressing, progress_pc: bool) -> u8 {
         let address = match addressing {
             Addressing::Immediate => {
-                // Return immediately the nest byte on immediate
-                return self.read_next_byte();
+                // Return immediately the next byte on immediate
+                return self.read_next_byte(progress_pc);
             }
-            Addressing::Absolute => self.read_next_double(),
-            Addressing::AbsoluteX => self.read_next_double() + u16::from(self.x),
-            Addressing::AbsoluteY => self.read_next_double() + u16::from(self.y),
+            Addressing::Accumulator => {
+                // Return immediately the accumulator
+                return self.a;
+            }
+            Addressing::Absolute => self.read_next_double(progress_pc),
+            Addressing::AbsoluteX => self.read_next_double(progress_pc) + u16::from(self.x),
+            Addressing::AbsoluteY => self.read_next_double(progress_pc) + u16::from(self.y),
             Addressing::IndirectX => {
-                let ptr = u16::from(self.read_next_byte() + self.x);
+                let ptr = u16::from(self.read_next_byte(progress_pc) + self.x);
                 self.read_double(ptr)
             }
             Addressing::IndirectY => {
-                let ptr = u16::from(self.read_next_byte());
+                let ptr = u16::from(self.read_next_byte(progress_pc));
                 self.read_double(ptr) + u16::from(self.y)
             }
-            Addressing::ZeroPage => self.read_next_byte() as u16,
-            Addressing::ZeroPageX => self.read_next_byte().wrapping_add(self.x) as u16,
+            Addressing::ZeroPage => self.read_next_byte(progress_pc) as u16,
+            Addressing::ZeroPageX => self.read_next_byte(progress_pc).wrapping_add(self.x) as u16,
             _ => panic!("read_byte doesn't support {:?} addressing", addressing),
         };
         self.memory.read(address)
     }
 
-    pub fn write_byte(&mut self, byte: u8, addressing: Addressing) {
+    pub fn write_byte(&mut self, addressing: &Addressing, byte: u8, progress_pc: bool) {
         let address = match addressing {
-            Addressing::Absolute => self.read_next_double(),
-            Addressing::AbsoluteX => self.read_next_double() + u16::from(self.x),
-            Addressing::AbsoluteY => self.read_next_double() + u16::from(self.y),
+            Addressing::Accumulator => {
+                // Return immediately after setting the accumulator
+                self.a = byte;
+                return ();
+            }
+            Addressing::Absolute => self.read_next_double(true),
+            Addressing::AbsoluteX => self.read_next_double(true) + u16::from(self.x),
+            Addressing::AbsoluteY => self.read_next_double(true) + u16::from(self.y),
             Addressing::IndirectX => {
-                let ptr = u16::from(self.read_next_byte() + self.x);
+                let ptr = u16::from(self.read_next_byte(progress_pc) + self.x);
                 self.read_double(ptr)
             }
             Addressing::IndirectY => {
-                let ptr = u16::from(self.read_next_byte());
+                let ptr = u16::from(self.read_next_byte(progress_pc));
                 self.read_double(ptr) + u16::from(self.y)
             }
-            Addressing::ZeroPage => self.read_next_byte() as u16,
-            Addressing::ZeroPageX => self.read_next_byte().wrapping_add(self.x) as u16,
-            Addressing::ZeroPageY => self.read_next_byte().wrapping_add(self.y) as u16,
+            Addressing::ZeroPage => self.read_next_byte(progress_pc) as u16,
+            Addressing::ZeroPageX => self.read_next_byte(progress_pc).wrapping_add(self.x) as u16,
+            Addressing::ZeroPageY => self.read_next_byte(progress_pc).wrapping_add(self.y) as u16,
             _ => panic!("write_byte doesn't support {:?} addressing", addressing),
         };
         self.memory.write(address, byte);
     }
 
-    pub fn update_byte<F>(&mut self, addressing: Addressing, update_fn: F) -> u8
+    pub fn update_byte<F>(&mut self, addressing: &Addressing, update_fn: F, progress_pc: bool) -> u8
     where
         F: Fn(u8) -> u8,
     {
         let address = match addressing {
-            Addressing::Absolute => self.read_next_double(),
-            Addressing::AbsoluteX => self.read_next_double() + u16::from(self.x),
-            Addressing::AbsoluteY => self.read_next_double() + u16::from(self.y),
+            Addressing::Absolute => self.read_next_double(progress_pc),
+            Addressing::AbsoluteX => self.read_next_double(progress_pc) + u16::from(self.x),
+            Addressing::AbsoluteY => self.read_next_double(progress_pc) + u16::from(self.y),
             Addressing::IndirectX => {
-                let ptr = u16::from(self.read_next_byte() + self.x);
+                let ptr = u16::from(self.read_next_byte(progress_pc) + self.x);
                 self.read_double(ptr)
             }
             Addressing::IndirectY => {
-                let ptr = u16::from(self.read_next_byte());
+                let ptr = u16::from(self.read_next_byte(progress_pc));
                 self.read_double(ptr) + u16::from(self.y)
             }
-            Addressing::ZeroPage => self.read_next_byte() as u16,
-            Addressing::ZeroPageX => self.read_next_byte().wrapping_add(self.x) as u16,
+            Addressing::ZeroPage => self.read_next_byte(progress_pc) as u16,
+            Addressing::ZeroPageX => self.read_next_byte(progress_pc).wrapping_add(self.x) as u16,
             _ => panic!("update_byte doesn't support {:?} addressing", addressing),
         };
         let byte = update_fn(self.memory.read(address));
@@ -107,15 +116,20 @@ impl CPU {
         byte
     }
 
-    fn read_next_byte(&mut self) -> u8 {
+    fn read_next_byte(&mut self, progress_pc: bool) -> u8 {
         let byte = self.memory.read(self.pc);
-        self.pc += 1;
+        if progress_pc {
+            self.pc += 1;
+        }
         byte
     }
 
-    fn read_next_double(&mut self) -> u16 {
-        let lsb = self.read_next_byte();
-        let msb = self.read_next_byte();
+    fn read_next_double(&mut self, progress_pc: bool) -> u16 {
+        let lsb = self.memory.read(self.pc);
+        let msb = self.memory.read(self.pc + 1);
+        if progress_pc {
+            self.pc += 2;
+        }
         (u16::from(msb) << 8) + u16::from(lsb)
     }
 
@@ -151,7 +165,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0xAA, 0xFF]);
 
-        let byte = cpu.read_next_byte();
+        let byte = cpu.read_next_byte(true);
 
         assert_eq!(byte, 0xAA);
         assert_eq!(cpu.pc, 0x0003);

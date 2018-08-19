@@ -35,7 +35,7 @@ pub fn sbc(cpu: &mut CPU, addressing: Addressing) -> u8 {
         _ => panic!("SBC doesn't support {:?} addressing", addressing),
     };
 
-    let byte = !cpu.read_byte(addressing);
+    let byte = !cpu.read_byte(&addressing, true);
     add_byte_to_accumulator(cpu, byte);
 
     cycles

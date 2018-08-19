@@ -30,7 +30,7 @@ pub fn sta(cpu: &mut CPU, addressing: Addressing) -> u8 {
     };
 
     let acc = cpu.a;
-    cpu.write_byte(acc, addressing);
+    cpu.write_byte(&addressing, acc, true);
     cycles
 }
 
@@ -53,7 +53,7 @@ pub fn stx(cpu: &mut CPU, addressing: Addressing) -> u8 {
     };
 
     let x = cpu.x;
-    cpu.write_byte(x, addressing);
+    cpu.write_byte(&addressing, x, true);
     cycles
 }
 
@@ -76,7 +76,7 @@ pub fn sty(cpu: &mut CPU, addressing: Addressing) -> u8 {
     };
 
     let y = cpu.y;
-    cpu.write_byte(y, addressing);
+    cpu.write_byte(&addressing, y, true);
     cycles
 }
 

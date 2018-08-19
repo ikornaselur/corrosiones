@@ -32,7 +32,7 @@ pub fn ora(cpu: &mut CPU, addressing: Addressing) -> u8 {
         _ => panic!("ORA doesn't support {:?} addressing", addressing),
     };
 
-    cpu.a = cpu.a | cpu.read_byte(addressing);
+    cpu.a = cpu.a | cpu.read_byte(&addressing, true);
     cpu.flags.set_zero_from_byte(cpu.a);
     cpu.flags.set_negative_from_byte(cpu.a);
     cycles
@@ -70,7 +70,7 @@ pub fn eor(cpu: &mut CPU, addressing: Addressing) -> u8 {
         _ => panic!("EOR doesn't support {:?} addressing", addressing),
     };
 
-    cpu.a = cpu.a ^ cpu.read_byte(addressing);
+    cpu.a = cpu.a ^ cpu.read_byte(&addressing, true);
     cpu.flags.set_zero_from_byte(cpu.a);
     cpu.flags.set_negative_from_byte(cpu.a);
     cycles

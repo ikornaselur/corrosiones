@@ -32,7 +32,7 @@ pub fn and(cpu: &mut CPU, addressing: Addressing) -> u8 {
         _ => panic!("AND doesn't support {:?} addressing", addressing),
     };
 
-    cpu.a = cpu.a & cpu.read_byte(addressing);
+    cpu.a = cpu.a & cpu.read_byte(&addressing, true);
     cpu.flags.set_zero_from_byte(cpu.a);
     cpu.flags.set_negative_from_byte(cpu.a);
     cycles

@@ -32,7 +32,7 @@ pub fn lda(cpu: &mut CPU, addressing: Addressing) -> u8 {
         _ => panic!("LDA doesn't support {:?} addressing", addressing),
     };
 
-    cpu.a = cpu.read_byte(addressing);
+    cpu.a = cpu.read_byte(&addressing, true);
     cpu.flags.set_zero_from_byte(cpu.a);
     cpu.flags.set_negative_from_byte(cpu.a);
     cycles
@@ -61,7 +61,7 @@ pub fn ldx(cpu: &mut CPU, addressing: Addressing) -> u8 {
         Addressing::ZeroPage => 3,
         _ => panic!("LDX doesn't support {:?} addressing", addressing),
     };
-    cpu.x = cpu.read_byte(addressing);
+    cpu.x = cpu.read_byte(&addressing, true);
     cpu.flags.set_zero_from_byte(cpu.x);
     cpu.flags.set_negative_from_byte(cpu.x);
     cycles
@@ -90,7 +90,7 @@ pub fn ldy(cpu: &mut CPU, addressing: Addressing) -> u8 {
         Addressing::ZeroPage => 3,
         _ => panic!("LDY doesn't support {:?} addressing", addressing),
     };
-    cpu.y = cpu.read_byte(addressing);
+    cpu.y = cpu.read_byte(&addressing, true);
     cpu.flags.set_zero_from_byte(cpu.y);
     cpu.flags.set_negative_from_byte(cpu.y);
     cycles

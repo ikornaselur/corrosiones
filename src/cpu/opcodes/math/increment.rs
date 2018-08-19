@@ -21,7 +21,7 @@ pub fn inc(cpu: &mut CPU, addressing: Addressing) -> u8 {
         _ => panic!("INC doesn't support {:?} addressing", addressing),
     };
 
-    let byte = cpu.update_byte(addressing, |x| x.wrapping_add(1));
+    let byte = cpu.update_byte(&addressing, |x| x.wrapping_add(1), true);
 
     cpu.flags.set_zero_from_byte(byte);
     cpu.flags.set_negative_from_byte(byte);

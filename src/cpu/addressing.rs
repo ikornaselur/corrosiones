@@ -35,6 +35,9 @@ pub enum Addressing {
     /// STA MEM,Y       ;Store accumulator in memory
     /// ```
     AbsoluteY,
+    /// # Accumulator addressing
+    /// For instructions that affect either memory or the accumulator
+    Accumulator,
     /// # Immediate Addressing
     /// Immediate addressing allows the programmer to directly specify an 8 bit constant within the
     /// instruction. It is indicated by a '#' symbol followed by an numeric expression.

@@ -21,7 +21,7 @@ pub fn dec(cpu: &mut CPU, addressing: Addressing) -> u8 {
         _ => panic!("DEC doesn't support {:?} addressing", addressing),
     };
 
-    let byte = cpu.update_byte(addressing, |x| x.wrapping_sub(1));
+    let byte = cpu.update_byte(&addressing, |x| x.wrapping_sub(1), true);
 
     cpu.flags.set_zero_from_byte(byte);
     cpu.flags.set_negative_from_byte(byte);

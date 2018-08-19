@@ -23,7 +23,7 @@ pub fn bit(cpu: &mut CPU, addressing: Addressing) -> u8 {
         _ => panic!("BIT doesn't support {:?} addressing", addressing),
     };
 
-    let byte = cpu.read_byte(addressing);
+    let byte = cpu.read_byte(&addressing, true);
 
     let overflow = byte | 1 << 6 > 0;
     cpu.flags.set_overflow(overflow);
