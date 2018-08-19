@@ -29,6 +29,38 @@ pub fn dec(cpu: &mut CPU, addressing: Addressing) -> u8 {
     cycles
 }
 
+/// Decrement X Index
+///
+/// # Flags affected
+///
+/// * Zero
+/// * Negative
+pub fn dex(cpu: &mut CPU) -> u8 {
+    let x = cpu.x.wrapping_sub(1);
+    cpu.x = x;
+
+    cpu.flags.set_zero_from_byte(x);
+    cpu.flags.set_negative_from_byte(x);
+
+    2
+}
+
+/// Decrement Y Index
+///
+/// # Flags affected
+///
+/// * Zero
+/// * Negative
+pub fn dey(cpu: &mut CPU) -> u8 {
+    let y = cpu.y.wrapping_sub(1);
+    cpu.y = y;
+
+    cpu.flags.set_zero_from_byte(y);
+    cpu.flags.set_negative_from_byte(y);
+
+    2
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -57,5 +89,53 @@ mod test {
         dec(&mut cpu, Addressing::Absolute);
 
         assert_eq!(cpu.raw_read_byte(0x0001), 0xFF);
+    }
+
+    #[test]
+    fn dex_decrements_x_index() {
+        let mut cpu = CPU {
+            x: 0xA1,
+            ..CPU::default()
+        };
+
+        dex(&mut cpu);
+
+        assert_eq!(cpu.x, 0xA0);
+    }
+
+    #[test]
+    fn dex_decrements_x_index_wrapping() {
+        let mut cpu = CPU {
+            x: 0x00,
+            ..CPU::default()
+        };
+
+        dex(&mut cpu);
+
+        assert_eq!(cpu.x, 0xFF);
+    }
+
+    #[test]
+    fn dey_decrements_x_index() {
+        let mut cpu = CPU {
+            y: 0xA1,
+            ..CPU::default()
+        };
+
+        dey(&mut cpu);
+
+        assert_eq!(cpu.y, 0xA0);
+    }
+
+    #[test]
+    fn dey_decrements_x_index_wrapping() {
+        let mut cpu = CPU {
+            y: 0x00,
+            ..CPU::default()
+        };
+
+        dey(&mut cpu);
+
+        assert_eq!(cpu.y, 0xFF);
     }
 }
