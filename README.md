@@ -12,3 +12,6 @@ The following is a list of resources that I used, in no particular order
 * [Emulator 101](http://www.emulator101.com/6502-addressing-modes.html)
 * [Documentation for the NMOS 65xx/85xx Instruction Set](http://nesdev.com/6502_cpu.txt)
 * [Assembly In One Step](https://www.dwheeler.com/6502/oneelkruns/asm1step.html)
+* [Nintendo Entertainment System Architecture](http://fms.komkon.org/EMUL8/NES.html)
+* [NesDev 6502 CPU text](http://nesdev.com/6502_cpu.txt)
+* [http://oxyron.de/ opcodes docum,ent](http://oxyron.de/html/opcodes02.html)
