@@ -21,6 +21,8 @@ pub fn clv(cpu: &mut CPU) -> u8 {
     2
 }
 
+/// Clear
+
 #[cfg(test)]
 mod test {
     use super::*;

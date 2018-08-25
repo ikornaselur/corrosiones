@@ -13,7 +13,7 @@ pub struct Memory {
     io: Vec<u8>,
     expansion_rom: Vec<u8>,
     sram: Vec<u8>,
-    rom: Vec<u8>,
+    pub(crate) rom: Vec<u8>,
 }
 
 impl Default for Memory {
@@ -40,7 +40,7 @@ impl Memory {
     ///
     /// # Arguments
     ///
-    /// * `ram` - The ram to load into memory
+    /// * `ram` - The RAM to load into memory
     ///
     /// # Example
     ///
@@ -59,9 +59,24 @@ impl Memory {
         Ok(())
     }
 
+    /// Load ROM into memory
+    ///
+    /// The provided ROM has to be exactly 0x8000 bytes
+    ///
+    /// # Arguments
+    ///
+    /// * `rom` - The ROM to load into memory
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let mut memory = corrosiones::cpu::memory::Memory::new();
+    ///
+    /// memory.load_rom(vec![0xFF; 0x8000]).expect("Failed to load rom");
+    /// ```
     pub fn load_rom(&mut self, rom: Vec<u8>) -> Result<(), &'static str> {
-        if rom.len() > ROM_SIZE {
-            return Err("ROM too big");
+        if rom.len() != ROM_SIZE {
+            return Err("Invalid ROM size");
         }
         self.rom = rom;
         self.rom.resize(ROM_SIZE, 0x00);
@@ -89,7 +104,7 @@ impl Memory {
     /// ```
     pub fn read(&self, addr: u16) -> u8 {
         let addr = usize::from(addr);
-        match addr {
+        let result = match addr {
             0x0000...0x07FF => self.ram[addr],
             0x0800...0x0FFF => self.ram[addr - 0x0800],
             0x1000...0x17FF => self.ram[addr - 0x1000],
@@ -100,7 +115,10 @@ impl Memory {
             0x6000...0x7FFF => self.sram[addr - 0x6000],
             0x8000...0xFFFF => self.rom[addr - 0x8000],
             _ => panic!("Reading from 0x{:04X?} is unsupported", addr),
-        }
+        };
+
+        println!("0x{:04X?}: 0x{:02X?}", addr, result);
+        result
     }
 
     /// Write to the memory
@@ -123,10 +141,8 @@ impl Memory {
     pub fn write(&mut self, addr: u16, byte: u8) {
         let addr = usize::from(addr);
         match addr {
-            0x0000...0x07FF => self.ram[addr] = byte,
-            0x0800...0x0FFF => self.ram[addr - 0x0800] = byte,
-            0x1000...0x17FF => self.ram[addr - 0x1000] = byte,
-            0x1800...0x1FFF => self.ram[addr - 0x1800] = byte,
+            0x0000...0x1FFF => self.ram[addr % 0x0800] = byte,
+            0x2000...0x3FFF => self.io[(addr - 0x2000) % 0x0008] = byte,
             _ => panic!("Unable to write to 0x{:04X?}", addr),
         }
     }

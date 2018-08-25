@@ -8,12 +8,14 @@ use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 
+use cpu::opcodes::{jump, registers, storage};
+
 pub(crate) use cpu::addressing::Addressing;
 pub(crate) use cpu::flags::Flags;
 pub(crate) use cpu::memory::Memory;
 
 pub struct CPU {
-    memory: Memory,
+    pub(crate) memory: Memory,
     flags: Flags,
     pc: u16,
     sp: u8,
@@ -190,6 +192,8 @@ impl CPU {
         f.read_to_end(&mut buffer)?;
 
         self.process_file(&buffer[..])?;
+        self.memory.load_ram(Vec::new())?;
+        self.reset_vector();
 
         Ok(())
     }
@@ -198,13 +202,10 @@ impl CPU {
         if buffer[0..=3] != [b'N', b'E', b'S', 0x1A] {
             return Err("Invalid magic header");
         }
-        let prg_rom_banks = buffer[4];
-        let chr_rom_banks = buffer[5];
         let rom_control_byte1 = buffer[6];
         let rom_control_byte2 = buffer[7];
-        let ram_banks = buffer[8];
 
-        let mapper = rom_control_byte1 & 0b1111_0000 >> 4 | rom_control_byte2 & 0b1111_0000;
+        let mapper = (rom_control_byte1 & 0b1111_0000) >> 4 | (rom_control_byte2 & 0b1111_0000);
 
         match mapper {
             0 => nrom(self, buffer)?,
@@ -213,16 +214,43 @@ impl CPU {
 
         Ok(())
     }
+
+    /// Jump to the reset vector
+    fn reset_vector(&mut self) {
+        let address = self.read_double(0xFFFC);
+        self.pc = address;
+    }
+
+    pub fn step(&mut self) -> Option<u8> {
+        println!(
+            "A: 0x{:02X?} X: 0x{:02X?} Y: 0x{:02X?} SP: 0x{:02X?} PC: 0x{:04X?}",
+            self.a, self.x, self.y, self.sp, self.pc
+        );
+        let byte = self.read_next_byte(true);
+        let cycles = match byte {
+            0x4C => jump::jmp::jmp(self, &Addressing::Absolute),
+            0x78 => registers::set::sei(self),
+            0x8D => storage::store::sta(self, &Addressing::Absolute),
+            0xA9 => storage::load::lda(self, &Addressing::Immediate),
+            _ => panic!("Unknown opcode: 0x{:02X?}", byte),
+        };
+
+        Some(cycles)
+    }
 }
 
 pub fn nrom(cpu: &mut CPU, buffer: &[u8]) -> Result<(), &'static str> {
+    let trainer = buffer[6] & 0b0000_0100 > 0;
+    let bank_offset = if trainer { 16 + 512 } else { 16 };
     match buffer[4] {
         1 => {
-            let mut bank = Vec::from(&buffer[0x8000..=0x8FFF]);
-            bank.extend(&buffer[0x8000..=0x8FFF]);
+            let mut bank = Vec::from(&buffer[bank_offset..(bank_offset + 0x4000)]);
+            bank.extend(&buffer[bank_offset..(bank_offset + 0x4000)]);
             cpu.memory.load_rom(bank)?;
         }
-        2 => cpu.memory.load_rom(Vec::from(&buffer[0x8000..=0xFFFF]))?,
+        2 => cpu
+            .memory
+            .load_rom(Vec::from(&buffer[bank_offset..(bank_offset + 0x8000)]))?,
         _ => {
             return Err("NROM only supports 1 or 2 PRG ROM banks");
         }
