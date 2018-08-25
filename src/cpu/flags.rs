@@ -57,6 +57,10 @@ impl Flags {
         self.carry = carry;
     }
 
+    pub fn set_zero(&mut self, zero: bool) {
+        self.zero = zero;
+    }
+
     pub fn set_overflow(&mut self, overflow: bool) {
         self.overflow = overflow;
     }
