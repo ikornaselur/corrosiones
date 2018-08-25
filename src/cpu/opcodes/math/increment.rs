@@ -13,7 +13,7 @@ use cpu::{Addressing, CPU};
 ///
 /// * Negative
 /// * Zero
-pub fn inc(cpu: &mut CPU, addressing: Addressing) -> u8 {
+pub fn inc(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute | Addressing::ZeroPageX => 6,
         Addressing::AbsoluteX => 7,
@@ -73,7 +73,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0xA1, 0x01, 0x00]);
 
-        inc(&mut cpu, Addressing::Absolute);
+        inc(&mut cpu, &Addressing::Absolute);
 
         assert_eq!(cpu.raw_read_byte(0x0001), 0xA2);
     }
@@ -86,7 +86,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0x01, 0x00]);
 
-        inc(&mut cpu, Addressing::Absolute);
+        inc(&mut cpu, &Addressing::Absolute);
 
         assert_eq!(cpu.raw_read_byte(0x0001), 0x00);
     }

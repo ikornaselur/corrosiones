@@ -13,7 +13,7 @@ use cpu::{Addressing, CPU};
 ///
 /// * Absolute - 3 cycles
 /// * Indirect - 5 cycles
-pub fn jmp(cpu: &mut CPU, addressing: Addressing) -> u8 {
+pub fn jmp(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute => 3,
         Addressing::Indirect => 5,
@@ -39,7 +39,7 @@ pub fn jmp(cpu: &mut CPU, addressing: Addressing) -> u8 {
 /// # Supported addressing modes
 ///
 /// * Absolute - 6 cycles
-fn jsr(cpu: &mut CPU, addressing: Addressing) -> u8 {
+pub fn jsr(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let cycles = 6;
 
     let address = match addressing {
@@ -69,7 +69,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0xAD, 0xDE]);
 
-        jmp(&mut cpu, Addressing::Absolute);
+        jmp(&mut cpu, &Addressing::Absolute);
 
         assert_eq!(cpu.pc, 0xDEAD);
     }
@@ -82,7 +82,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0xAD, 0xDE, 0x01, 0x00]);
 
-        jmp(&mut cpu, Addressing::Indirect);
+        jmp(&mut cpu, &Addressing::Indirect);
 
         assert_eq!(cpu.pc, 0xDEAD);
     }
@@ -95,7 +95,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0xAD, 0xDE, 0xFF]);
 
-        jsr(&mut cpu, Addressing::Absolute);
+        jsr(&mut cpu, &Addressing::Absolute);
 
         assert_eq!(cpu.pc, 0xDEAD);
         assert_eq!(cpu.sp, 0xFD);

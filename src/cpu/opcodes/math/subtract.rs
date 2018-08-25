@@ -22,7 +22,7 @@ use cpu::{Addressing, CPU};
 /// * Negative
 /// * Overflow
 /// * Zero
-pub fn sbc(cpu: &mut CPU, addressing: Addressing) -> u8 {
+pub fn sbc(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute
         | Addressing::AbsoluteX
@@ -55,7 +55,7 @@ mod test {
         cpu.memory.load_ram(vec![0xFF, 0x01, 0xFF, 0xFF]);
         cpu.flags.set_carry(true); // Carry == No borrow
 
-        let cycles = sbc(&mut cpu, Addressing::Immediate);
+        let cycles = sbc(&mut cpu, &Addressing::Immediate);
 
         assert_eq!(cycles, 2);
         assert_eq!(cpu.a, 3);
@@ -71,7 +71,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0x01, 0xFF, 0xFF]);
 
-        let cycles = sbc(&mut cpu, Addressing::Immediate);
+        let cycles = sbc(&mut cpu, &Addressing::Immediate);
 
         assert_eq!(cycles, 2);
         assert_eq!(cpu.a, 2);
@@ -88,7 +88,7 @@ mod test {
         cpu.memory.load_ram(vec![0xAA, 0xFF, 0xAA, 0xAA]);
         cpu.flags.set_carry(false);
 
-        let cycles = sbc(&mut cpu, Addressing::Immediate);
+        let cycles = sbc(&mut cpu, &Addressing::Immediate);
 
         assert_eq!(cycles, 2);
         assert_eq!(cpu.a, 0xFF);
@@ -105,7 +105,7 @@ mod test {
         cpu.memory.load_ram(vec![0xAA, 0xFF, 0xAA, 0xAA]);
         cpu.flags.set_carry(false);
 
-        let cycles = sbc(&mut cpu, Addressing::Immediate);
+        let cycles = sbc(&mut cpu, &Addressing::Immediate);
 
         assert_eq!(cycles, 2);
         assert_eq!(cpu.a, 0x00);
@@ -122,7 +122,7 @@ mod test {
         cpu.memory.load_ram(vec![0xAA, 0xFF, 0xAA, 0xAA]);
         cpu.flags.set_carry(true);
 
-        let cycles = sbc(&mut cpu, Addressing::Immediate);
+        let cycles = sbc(&mut cpu, &Addressing::Immediate);
 
         assert_eq!(cycles, 2);
         assert_eq!(cpu.a, 0x01);

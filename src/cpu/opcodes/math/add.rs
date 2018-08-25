@@ -40,7 +40,7 @@ pub(super) fn add_byte_to_accumulator(cpu: &mut CPU, original_byte: u8) {
 /// * Negative
 /// * Overflow
 /// * Zero
-pub fn adc(cpu: &mut CPU, addressing: Addressing) -> u8 {
+pub fn adc(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute
         | Addressing::AbsoluteX
@@ -72,7 +72,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0x00, 0x01, 0x02, 0x03]);
 
-        let cycles = adc(&mut cpu, Addressing::Immediate);
+        let cycles = adc(&mut cpu, &Addressing::Immediate);
 
         assert_eq!(cycles, 2);
         assert_eq!(cpu.a, 2);
@@ -89,7 +89,7 @@ mod test {
         cpu.memory.load_ram(vec![0x00, 0x01, 0x02, 0x03]);
         cpu.flags.set_carry(true);
 
-        let cycles = adc(&mut cpu, Addressing::Immediate);
+        let cycles = adc(&mut cpu, &Addressing::Immediate);
 
         assert_eq!(cycles, 2);
         assert_eq!(cpu.a, 3);
@@ -106,7 +106,7 @@ mod test {
         cpu.memory.load_ram(vec![0x00, 0xFF, 0x02, 0x03]);
         cpu.flags.set_carry(true);
 
-        let cycles = adc(&mut cpu, Addressing::Immediate);
+        let cycles = adc(&mut cpu, &Addressing::Immediate);
 
         assert_eq!(cycles, 2);
         assert_eq!(cpu.a, 1);
@@ -123,7 +123,7 @@ mod test {
         cpu.memory.load_ram(vec![0x00, 0xFF, 0x02, 0x03]);
         cpu.flags.set_carry(true);
 
-        let cycles = adc(&mut cpu, Addressing::Immediate);
+        let cycles = adc(&mut cpu, &Addressing::Immediate);
 
         assert_eq!(cycles, 2);
         assert_eq!(cpu.a, 0xFF);
@@ -140,7 +140,7 @@ mod test {
         cpu.memory.load_ram(vec![0x00, 0xFF, 0x02, 0x03]);
         cpu.flags.set_carry(false);
 
-        let cycles = adc(&mut cpu, Addressing::Immediate);
+        let cycles = adc(&mut cpu, &Addressing::Immediate);
 
         assert_eq!(cycles, 2);
         assert_eq!(cpu.a, 0xFE);
@@ -156,7 +156,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0x00, -1i8 as u8]);
 
-        adc(&mut cpu, Addressing::Immediate);
+        adc(&mut cpu, &Addressing::Immediate);
 
         assert_eq!(cpu.a, 0);
     }
@@ -171,7 +171,7 @@ mod test {
         cpu.memory
             .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA]);
 
-        let cycles = adc(&mut cpu, Addressing::Absolute);
+        let cycles = adc(&mut cpu, &Addressing::Absolute);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.a, 0xBB);
@@ -188,7 +188,7 @@ mod test {
         cpu.memory
             .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA, 0xBB]);
 
-        let cycles = adc(&mut cpu, Addressing::AbsoluteX);
+        let cycles = adc(&mut cpu, &Addressing::AbsoluteX);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.a, 0xCC);
@@ -205,7 +205,7 @@ mod test {
         cpu.memory
             .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA, 0xBB, 0xCC]);
 
-        let cycles = adc(&mut cpu, Addressing::AbsoluteY);
+        let cycles = adc(&mut cpu, &Addressing::AbsoluteY);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.a, 0xDD);
@@ -222,7 +222,7 @@ mod test {
         cpu.memory
             .load_ram(vec![0xFF, 0xAA, 0x04, 0xFF, 0xFF, 0x01, 0x00]);
 
-        let cycles = adc(&mut cpu, Addressing::IndirectX);
+        let cycles = adc(&mut cpu, &Addressing::IndirectX);
 
         assert_eq!(cycles, 6);
         assert_eq!(cpu.a, 0xBB);
@@ -239,7 +239,7 @@ mod test {
         cpu.memory
             .load_ram(vec![0xFF, 0xFF, 0xAA, 0x06, 0xFF, 0xFF, 0x01, 0x00]);
 
-        let cycles = adc(&mut cpu, Addressing::IndirectY);
+        let cycles = adc(&mut cpu, &Addressing::IndirectY);
 
         assert_eq!(cycles, 5);
         assert_eq!(cpu.a, 0xBB);
@@ -254,7 +254,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0x00, 0xDE, 0x01, 0x00]);
 
-        let cycles = adc(&mut cpu, Addressing::ZeroPage);
+        let cycles = adc(&mut cpu, &Addressing::ZeroPage);
 
         assert_eq!(cycles, 3);
         assert_eq!(cpu.a, 0xEF);
@@ -270,7 +270,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0x00, 0xDE, 0x01, 0xAD]);
 
-        let cycles = adc(&mut cpu, Addressing::ZeroPageX);
+        let cycles = adc(&mut cpu, &Addressing::ZeroPageX);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.a, 0xBE);

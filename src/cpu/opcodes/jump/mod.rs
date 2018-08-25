@@ -1,2 +1,2 @@
-pub mod jump;
+pub mod jmp;
 pub mod ret;

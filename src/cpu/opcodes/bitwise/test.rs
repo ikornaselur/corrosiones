@@ -16,7 +16,7 @@ use cpu::{Addressing, CPU};
 /// * Negative
 /// * Overflow
 /// * Zero
-pub fn bit(cpu: &mut CPU, addressing: Addressing) -> u8 {
+pub fn bit(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute => 4,
         Addressing::ZeroPage => 3,
@@ -25,7 +25,7 @@ pub fn bit(cpu: &mut CPU, addressing: Addressing) -> u8 {
 
     let byte = cpu.read_byte(&addressing, true);
 
-    let overflow = byte | 1 << 6 > 0;
+    let overflow = byte & 1 << 6 > 0;
     cpu.flags.set_overflow(overflow);
     cpu.flags.set_negative_from_byte(byte);
 
@@ -47,14 +47,14 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0b0000_1111, 0x01, 0x00]);
 
-        bit(&mut cpu, Addressing::Absolute);
+        bit(&mut cpu, &Addressing::Absolute);
 
         assert_eq!(cpu.flags.zero, false);
 
         cpu.a = 0b1111_0000;
         cpu.pc = 0x0002;
 
-        bit(&mut cpu, Addressing::Absolute);
+        bit(&mut cpu, &Addressing::Absolute);
 
         assert_eq!(cpu.flags.zero, true);
     }
@@ -68,9 +68,10 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0b0100_0000, 0x01, 0x00]);
 
-        bit(&mut cpu, Addressing::Absolute);
+        bit(&mut cpu, &Addressing::Absolute);
 
         assert_eq!(cpu.flags.overflow, true);
+        assert_eq!(cpu.flags.negative, false);
     }
 
     #[test]
@@ -82,8 +83,9 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0b1000_0000, 0x01, 0x00]);
 
-        bit(&mut cpu, Addressing::Absolute);
+        bit(&mut cpu, &Addressing::Absolute);
 
         assert_eq!(cpu.flags.negative, true);
+        assert_eq!(cpu.flags.overflow, false);
     }
 }

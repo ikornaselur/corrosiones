@@ -19,7 +19,7 @@ use cpu::{Addressing, CPU};
 ///
 /// * Negative
 /// * Zero
-pub fn lda(cpu: &mut CPU, addressing: Addressing) -> u8 {
+pub fn lda(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute
         | Addressing::AbsoluteX
@@ -54,7 +54,7 @@ pub fn lda(cpu: &mut CPU, addressing: Addressing) -> u8 {
 ///
 /// * Negative
 /// * Zero
-pub fn ldx(cpu: &mut CPU, addressing: Addressing) -> u8 {
+pub fn ldx(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute | Addressing::AbsoluteX | Addressing::ZeroPageX => 4,
         Addressing::Immediate => 2,
@@ -83,7 +83,7 @@ pub fn ldx(cpu: &mut CPU, addressing: Addressing) -> u8 {
 ///
 /// * Negative
 /// * Zero
-pub fn ldy(cpu: &mut CPU, addressing: Addressing) -> u8 {
+pub fn ldy(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute | Addressing::AbsoluteX | Addressing::ZeroPageX => 4,
         Addressing::Immediate => 2,
@@ -109,7 +109,7 @@ mod test {
         cpu.memory
             .load_ram(vec![0x01, 0x02, 0x03, 0x04, 0x05, 0x06]);
 
-        let cycles = lda(&mut cpu, Addressing::Immediate);
+        let cycles = lda(&mut cpu, &Addressing::Immediate);
 
         assert_eq!(cycles, 2);
         assert_eq!(cpu.a, 0x03);
@@ -123,7 +123,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0x00, 0xDE, 0x01, 0x00]);
 
-        let cycles = lda(&mut cpu, Addressing::ZeroPage);
+        let cycles = lda(&mut cpu, &Addressing::ZeroPage);
 
         assert_eq!(cycles, 3);
         assert_eq!(cpu.a, 0xDE);
@@ -138,7 +138,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0x00, 0xDE, 0x01, 0xAD]);
 
-        let cycles = lda(&mut cpu, Addressing::ZeroPageX);
+        let cycles = lda(&mut cpu, &Addressing::ZeroPageX);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.a, 0xAD);
@@ -153,7 +153,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xAA, 0xDE, 0x01, 0xAD]);
 
-        let cycles = lda(&mut cpu, Addressing::ZeroPageX);
+        let cycles = lda(&mut cpu, &Addressing::ZeroPageX);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.a, 0xAA);
@@ -168,7 +168,7 @@ mod test {
         cpu.memory
             .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA]);
 
-        let cycles = lda(&mut cpu, Addressing::Absolute);
+        let cycles = lda(&mut cpu, &Addressing::Absolute);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.a, 0xAA);
@@ -184,7 +184,7 @@ mod test {
         cpu.memory
             .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA, 0xBB]);
 
-        let cycles = lda(&mut cpu, Addressing::AbsoluteX);
+        let cycles = lda(&mut cpu, &Addressing::AbsoluteX);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.a, 0xBB);
@@ -200,7 +200,7 @@ mod test {
         cpu.memory
             .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA, 0xBB, 0xCC]);
 
-        let cycles = lda(&mut cpu, Addressing::AbsoluteY);
+        let cycles = lda(&mut cpu, &Addressing::AbsoluteY);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.a, 0xCC);
@@ -216,7 +216,7 @@ mod test {
         cpu.memory
             .load_ram(vec![0xFF, 0xAA, 0x04, 0xFF, 0xFF, 0x01, 0x00]);
 
-        let cycles = lda(&mut cpu, Addressing::IndirectX);
+        let cycles = lda(&mut cpu, &Addressing::IndirectX);
 
         assert_eq!(cycles, 6);
         assert_eq!(cpu.a, 0xAA);
@@ -232,7 +232,7 @@ mod test {
         cpu.memory
             .load_ram(vec![0xFF, 0xFF, 0xAA, 0x06, 0xFF, 0xFF, 0x01, 0x00]);
 
-        let cycles = lda(&mut cpu, Addressing::IndirectY);
+        let cycles = lda(&mut cpu, &Addressing::IndirectY);
 
         assert_eq!(cycles, 5);
         assert_eq!(cpu.a, 0xAA);
@@ -247,7 +247,7 @@ mod test {
         cpu.memory
             .load_ram(vec![0x01, 0x02, 0x03, 0x04, 0x05, 0x06]);
 
-        let cycles = ldx(&mut cpu, Addressing::Immediate);
+        let cycles = ldx(&mut cpu, &Addressing::Immediate);
 
         assert_eq!(cycles, 2);
         assert_eq!(cpu.x, 0x03);
@@ -261,7 +261,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0x00, 0xDE, 0x01, 0x00]);
 
-        let cycles = ldx(&mut cpu, Addressing::ZeroPage);
+        let cycles = ldx(&mut cpu, &Addressing::ZeroPage);
 
         assert_eq!(cycles, 3);
         assert_eq!(cpu.x, 0xDE);
@@ -276,7 +276,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0x00, 0xDE, 0x01, 0xAD]);
 
-        let cycles = ldx(&mut cpu, Addressing::ZeroPageX);
+        let cycles = ldx(&mut cpu, &Addressing::ZeroPageX);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.x, 0xAD);
@@ -291,7 +291,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xAA, 0xDE, 0x01, 0xAD]);
 
-        let cycles = ldx(&mut cpu, Addressing::ZeroPageX);
+        let cycles = ldx(&mut cpu, &Addressing::ZeroPageX);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.x, 0xAA);
@@ -306,7 +306,7 @@ mod test {
         cpu.memory
             .load_ram(vec![0x01, 0x02, 0x03, 0x04, 0x05, 0x06]);
 
-        let cycles = ldy(&mut cpu, Addressing::Immediate);
+        let cycles = ldy(&mut cpu, &Addressing::Immediate);
 
         assert_eq!(cycles, 2);
         assert_eq!(cpu.y, 0x03);
@@ -320,7 +320,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0x00, 0xDE, 0x01, 0x00]);
 
-        let cycles = ldy(&mut cpu, Addressing::ZeroPage);
+        let cycles = ldy(&mut cpu, &Addressing::ZeroPage);
 
         assert_eq!(cycles, 3);
         assert_eq!(cpu.y, 0xDE);
@@ -335,7 +335,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0x00, 0xDE, 0x01, 0xAD]);
 
-        let cycles = ldy(&mut cpu, Addressing::ZeroPageX);
+        let cycles = ldy(&mut cpu, &Addressing::ZeroPageX);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.y, 0xAD);
@@ -350,7 +350,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xAA, 0xDE, 0x01, 0xAD]);
 
-        let cycles = ldy(&mut cpu, Addressing::ZeroPageX);
+        let cycles = ldy(&mut cpu, &Addressing::ZeroPageX);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.y, 0xAA);

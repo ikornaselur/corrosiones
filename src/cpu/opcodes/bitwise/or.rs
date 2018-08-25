@@ -19,7 +19,7 @@ use cpu::{Addressing, CPU};
 ///
 /// * Negative
 /// * Zero
-pub fn ora(cpu: &mut CPU, addressing: Addressing) -> u8 {
+pub fn ora(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute
         | Addressing::AbsoluteX
@@ -32,7 +32,7 @@ pub fn ora(cpu: &mut CPU, addressing: Addressing) -> u8 {
         _ => panic!("ORA doesn't support {:?} addressing", addressing),
     };
 
-    cpu.a = cpu.a | cpu.read_byte(&addressing, true);
+    cpu.a |= cpu.read_byte(&addressing, true);
     cpu.flags.set_zero_from_byte(cpu.a);
     cpu.flags.set_negative_from_byte(cpu.a);
     cycles
@@ -57,7 +57,7 @@ pub fn ora(cpu: &mut CPU, addressing: Addressing) -> u8 {
 ///
 /// * Negative
 /// * Zero
-pub fn eor(cpu: &mut CPU, addressing: Addressing) -> u8 {
+pub fn eor(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute
         | Addressing::AbsoluteX
@@ -70,7 +70,7 @@ pub fn eor(cpu: &mut CPU, addressing: Addressing) -> u8 {
         _ => panic!("EOR doesn't support {:?} addressing", addressing),
     };
 
-    cpu.a = cpu.a ^ cpu.read_byte(&addressing, true);
+    cpu.a ^= cpu.read_byte(&addressing, true);
     cpu.flags.set_zero_from_byte(cpu.a);
     cpu.flags.set_negative_from_byte(cpu.a);
     cycles
@@ -88,7 +88,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0b1010_1010, 0xFF]);
 
-        ora(&mut cpu, Addressing::Immediate);
+        ora(&mut cpu, &Addressing::Immediate);
 
         assert_eq!(cpu.a, 0b1111_1010);
     }
@@ -102,7 +102,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0b1010_1010, 0xFF]);
 
-        eor(&mut cpu, Addressing::Immediate);
+        eor(&mut cpu, &Addressing::Immediate);
 
         assert_eq!(cpu.a, 0b0101_1010);
     }

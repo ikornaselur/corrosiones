@@ -17,7 +17,7 @@ use cpu::{Addressing, CPU};
 /// # Flags affected
 ///
 /// None
-pub fn sta(cpu: &mut CPU, addressing: Addressing) -> u8 {
+pub fn sta(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute
         | Addressing::AbsoluteX
@@ -45,7 +45,7 @@ pub fn sta(cpu: &mut CPU, addressing: Addressing) -> u8 {
 /// # Flags affected
 ///
 /// None
-pub fn stx(cpu: &mut CPU, addressing: Addressing) -> u8 {
+pub fn stx(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute | Addressing::ZeroPageY => 4,
         Addressing::ZeroPage => 3,
@@ -68,7 +68,7 @@ pub fn stx(cpu: &mut CPU, addressing: Addressing) -> u8 {
 /// # Flags affected
 ///
 /// None
-pub fn sty(cpu: &mut CPU, addressing: Addressing) -> u8 {
+pub fn sty(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute | Addressing::ZeroPageX => 4,
         Addressing::ZeroPage => 3,
@@ -93,7 +93,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0xFF, 0x01, 0x00]);
 
-        let cycles = sta(&mut cpu, Addressing::Absolute);
+        let cycles = sta(&mut cpu, &Addressing::Absolute);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.raw_read_byte(0x0001), 0xAB);
@@ -110,7 +110,7 @@ mod test {
         cpu.memory
             .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA, 0xBB]);
 
-        let cycles = sta(&mut cpu, Addressing::AbsoluteX);
+        let cycles = sta(&mut cpu, &Addressing::AbsoluteX);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.raw_read_byte(0x0006), 0xAB);
@@ -127,7 +127,7 @@ mod test {
         cpu.memory
             .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA, 0xBB]);
 
-        let cycles = sta(&mut cpu, Addressing::AbsoluteY);
+        let cycles = sta(&mut cpu, &Addressing::AbsoluteY);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.raw_read_byte(0x0006), 0xAB);
@@ -144,7 +144,7 @@ mod test {
         cpu.memory
             .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA, 0x01]);
 
-        let cycles = sta(&mut cpu, Addressing::IndirectX);
+        let cycles = sta(&mut cpu, &Addressing::IndirectX);
 
         assert_eq!(cycles, 6);
         assert_eq!(cpu.raw_read_byte(0x0001), 0xAB);
@@ -161,7 +161,7 @@ mod test {
         cpu.memory
             .load_ram(vec![0xFF, 0xFF, 0xFF, 0x07, 0x00, 0xFF, 0xAA, 0x01]);
 
-        let cycles = sta(&mut cpu, Addressing::IndirectY);
+        let cycles = sta(&mut cpu, &Addressing::IndirectY);
 
         assert_eq!(cycles, 5);
         assert_eq!(cpu.raw_read_byte(0x0002), 0xAB);
@@ -176,7 +176,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0x01, 0xFF]);
 
-        let cycles = sta(&mut cpu, Addressing::ZeroPage);
+        let cycles = sta(&mut cpu, &Addressing::ZeroPage);
 
         assert_eq!(cycles, 3);
         assert_eq!(cpu.raw_read_byte(0x0001), 0xAB);
@@ -192,7 +192,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0x01, 0xFF]);
 
-        let cycles = sta(&mut cpu, Addressing::ZeroPageX);
+        let cycles = sta(&mut cpu, &Addressing::ZeroPageX);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.raw_read_byte(0x0003), 0xAB);
@@ -207,7 +207,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0xFF, 0x01, 0x00]);
 
-        let cycles = stx(&mut cpu, Addressing::Absolute);
+        let cycles = stx(&mut cpu, &Addressing::Absolute);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.raw_read_byte(0x0001), 0xAB);
@@ -222,7 +222,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0x01, 0xFF]);
 
-        let cycles = stx(&mut cpu, Addressing::ZeroPage);
+        let cycles = stx(&mut cpu, &Addressing::ZeroPage);
 
         assert_eq!(cycles, 3);
         assert_eq!(cpu.raw_read_byte(0x0001), 0xAB);
@@ -238,7 +238,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0x01, 0xFF]);
 
-        let cycles = stx(&mut cpu, Addressing::ZeroPageY);
+        let cycles = stx(&mut cpu, &Addressing::ZeroPageY);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.raw_read_byte(0x0003), 0xAB);
@@ -253,7 +253,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0xFF, 0x01, 0x00]);
 
-        let cycles = sty(&mut cpu, Addressing::Absolute);
+        let cycles = sty(&mut cpu, &Addressing::Absolute);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.raw_read_byte(0x0001), 0xAB);
@@ -268,7 +268,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0x01, 0xFF]);
 
-        let cycles = sty(&mut cpu, Addressing::ZeroPage);
+        let cycles = sty(&mut cpu, &Addressing::ZeroPage);
 
         assert_eq!(cycles, 3);
         assert_eq!(cpu.raw_read_byte(0x0001), 0xAB);
@@ -284,7 +284,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0x01, 0xFF]);
 
-        let cycles = sty(&mut cpu, Addressing::ZeroPageX);
+        let cycles = sty(&mut cpu, &Addressing::ZeroPageX);
 
         assert_eq!(cycles, 4);
         assert_eq!(cpu.raw_read_byte(0x0003), 0xAB);

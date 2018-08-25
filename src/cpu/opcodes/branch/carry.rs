@@ -13,7 +13,7 @@ pub fn bcc(cpu: &mut CPU) -> u8 {
     if cpu.flags.carry {
         2
     } else {
-        cpu.offset_pc(offset as u16);
+        cpu.offset_pc(u16::from(offset));
         3 // 4 if new page
     }
 }
@@ -29,7 +29,7 @@ pub fn bcs(cpu: &mut CPU) -> u8 {
     let offset = cpu.read_next_byte(true);
 
     if cpu.flags.carry {
-        cpu.offset_pc(offset as u16);
+        cpu.offset_pc(u16::from(offset));
         3 // 4 if new page
     } else {
         2

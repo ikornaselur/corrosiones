@@ -58,8 +58,10 @@ impl CPU {
                 let ptr = u16::from(self.read_next_byte(progress_pc));
                 self.read_double(ptr) + u16::from(self.y)
             }
-            Addressing::ZeroPage => self.read_next_byte(progress_pc) as u16,
-            Addressing::ZeroPageX => self.read_next_byte(progress_pc).wrapping_add(self.x) as u16,
+            Addressing::ZeroPage => u16::from(self.read_next_byte(progress_pc)),
+            Addressing::ZeroPageX => {
+                u16::from(self.read_next_byte(progress_pc).wrapping_add(self.x))
+            }
             _ => panic!("read_byte doesn't support {:?} addressing", addressing),
         };
         self.memory.read(address)
@@ -83,9 +85,13 @@ impl CPU {
                 let ptr = u16::from(self.read_next_byte(progress_pc));
                 self.read_double(ptr) + u16::from(self.y)
             }
-            Addressing::ZeroPage => self.read_next_byte(progress_pc) as u16,
-            Addressing::ZeroPageX => self.read_next_byte(progress_pc).wrapping_add(self.x) as u16,
-            Addressing::ZeroPageY => self.read_next_byte(progress_pc).wrapping_add(self.y) as u16,
+            Addressing::ZeroPage => u16::from(self.read_next_byte(progress_pc)),
+            Addressing::ZeroPageX => {
+                u16::from(self.read_next_byte(progress_pc).wrapping_add(self.x))
+            }
+            Addressing::ZeroPageY => {
+                u16::from(self.read_next_byte(progress_pc).wrapping_add(self.y))
+            }
             _ => panic!("write_byte doesn't support {:?} addressing", addressing),
         };
         self.memory.write(address, byte);
@@ -107,8 +113,10 @@ impl CPU {
                 let ptr = u16::from(self.read_next_byte(progress_pc));
                 self.read_double(ptr) + u16::from(self.y)
             }
-            Addressing::ZeroPage => self.read_next_byte(progress_pc) as u16,
-            Addressing::ZeroPageX => self.read_next_byte(progress_pc).wrapping_add(self.x) as u16,
+            Addressing::ZeroPage => u16::from(self.read_next_byte(progress_pc)),
+            Addressing::ZeroPageX => {
+                u16::from(self.read_next_byte(progress_pc).wrapping_add(self.x))
+            }
             _ => panic!("update_byte doesn't support {:?} addressing", addressing),
         };
         let byte = update_fn(self.memory.read(address));

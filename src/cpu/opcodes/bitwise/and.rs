@@ -19,7 +19,7 @@ use cpu::{Addressing, CPU};
 ///
 /// * Negative
 /// * Zero
-pub fn and(cpu: &mut CPU, addressing: Addressing) -> u8 {
+pub fn and(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute
         | Addressing::AbsoluteX
@@ -32,7 +32,7 @@ pub fn and(cpu: &mut CPU, addressing: Addressing) -> u8 {
         _ => panic!("AND doesn't support {:?} addressing", addressing),
     };
 
-    cpu.a = cpu.a & cpu.read_byte(&addressing, true);
+    cpu.a &= cpu.read_byte(&addressing, true);
     cpu.flags.set_zero_from_byte(cpu.a);
     cpu.flags.set_negative_from_byte(cpu.a);
     cycles
@@ -51,7 +51,7 @@ mod test {
         };
         cpu.memory.load_ram(vec![0xFF, 0xFF, 0b1010_1010, 0xFF]);
 
-        and(&mut cpu, Addressing::Immediate);
+        and(&mut cpu, &Addressing::Immediate);
 
         assert_eq!(cpu.a, 0b1010_0000);
     }

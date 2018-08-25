@@ -16,8 +16,8 @@ pub struct Memory {
     rom: Vec<u8>,
 }
 
-impl Memory {
-    pub fn new() -> Memory {
+impl Default for Memory {
+    fn default() -> Memory {
         Memory {
             ram: Vec::new(),
             io: vec![0x00; IO_SIZE],
@@ -25,6 +25,12 @@ impl Memory {
             sram: Vec::new(),
             rom: Vec::new(),
         }
+    }
+}
+
+impl Memory {
+    pub fn new() -> Memory {
+        Memory::default()
     }
 
     /// Load RAM into memory

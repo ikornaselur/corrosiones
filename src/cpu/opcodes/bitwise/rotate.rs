@@ -15,7 +15,7 @@ use cpu::{Addressing, CPU};
 /// * Carry
 /// * Negative
 /// * Zero
-pub fn rol(cpu: &mut CPU, addressing: Addressing) -> u8 {
+pub fn rol(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute => 6,
         Addressing::AbsoluteX => 7,
@@ -55,7 +55,7 @@ pub fn rol(cpu: &mut CPU, addressing: Addressing) -> u8 {
 /// * Carry
 /// * Negative
 /// * Zero
-pub fn ror(cpu: &mut CPU, addressing: Addressing) -> u8 {
+pub fn ror(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Absolute => 6,
         Addressing::AbsoluteX => 7,
@@ -92,7 +92,7 @@ mod test {
         };
         cpu.flags.set_carry(true);
 
-        rol(&mut cpu, Addressing::Accumulator);
+        rol(&mut cpu, &Addressing::Accumulator);
 
         assert_eq!(cpu.a, 0b0010_1101);
         assert_eq!(cpu.flags.carry, true);
@@ -107,7 +107,7 @@ mod test {
         cpu.memory.load_ram(vec![0xFF, 0b0101_0101, 0x01, 0x00]);
         cpu.flags.set_carry(true);
 
-        rol(&mut cpu, Addressing::Absolute);
+        rol(&mut cpu, &Addressing::Absolute);
 
         assert_eq!(cpu.raw_read_byte(0x0001), 0b1010_1011);
     }
@@ -120,7 +120,7 @@ mod test {
         };
         cpu.flags.set_carry(true);
 
-        ror(&mut cpu, Addressing::Accumulator);
+        ror(&mut cpu, &Addressing::Accumulator);
 
         assert_eq!(cpu.a, 0b1100_1100);
         assert_eq!(cpu.flags.carry, true);
@@ -135,7 +135,7 @@ mod test {
         cpu.memory.load_ram(vec![0xFF, 0b0101_0101, 0x01, 0x00]);
         cpu.flags.set_carry(true);
 
-        ror(&mut cpu, Addressing::Absolute);
+        ror(&mut cpu, &Addressing::Absolute);
 
         assert_eq!(cpu.raw_read_byte(0x0001), 0b1010_1010);
     }
