@@ -25,6 +25,26 @@ impl Flags {
         Flags::default()
     }
 
+    /// Set all the flags from a single byte, useful for restoring the flags from memory
+    pub fn set_from_byte(&mut self, byte: u8) {
+        self.carry = byte & 0b0000_0001 != 0;
+        self.zero = byte & 0b0000_0010 != 0;
+        self.interrupt_disable = byte & 0b0000_0100 != 0;
+        self.overflow = byte & 0b0100_0000 != 0;
+        self.negative = byte & 0b1000_0000 != 0;
+    }
+
+    /// Get the flags a single byte, useful for storing the flags in memory
+    pub fn as_byte(&self) -> u8 {
+        let carry_byte = if self.carry { 1 } else { 0 };
+        let zero_byte = if self.zero { 1 << 1 } else { 0 };
+        let id_byte = if self.interrupt_disable { 1 << 2 } else { 0 };
+        let overflow_byte = if self.overflow { 1 << 6 } else { 0 };
+        let negative_byte = if self.negative { 1 << 7 } else { 0 };
+
+        carry_byte | zero_byte | id_byte | overflow_byte | negative_byte
+    }
+
     pub fn set_zero_from_byte(&mut self, byte: u8) {
         self.zero = byte == 0;
     }

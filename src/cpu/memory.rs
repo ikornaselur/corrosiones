@@ -4,9 +4,9 @@
 
 const RAM_SIZE: usize = 0x0800;
 const IO_SIZE: usize = 0x0028;
-const EXPANSION_ROM_SIZE: usize = 0x1980;
-const SRAM_SIZE: usize = 0x2000;
-const ROM_SIZE: usize = 0x2000;
+// const EXPANSION_ROM_SIZE: usize = 0x1980;
+// const SRAM_SIZE: usize = 0x2000;
+// const ROM_SIZE: usize = 0x2000;
 
 pub struct Memory {
     ram: Vec<u8>,
