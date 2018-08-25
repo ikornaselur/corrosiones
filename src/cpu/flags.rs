@@ -65,6 +65,10 @@ impl Flags {
         self.overflow = overflow;
     }
 
+    pub fn set_negative(&mut self, negative: bool) {
+        self.negative = negative;
+    }
+
     pub fn set_interrupt_disable(&mut self, id: bool) {
         self.interrupt_disable = id;
     }
