@@ -24,7 +24,7 @@ impl Default for CPU {
             memory: Memory::new(),
             flags: Flags::new(),
             pc: 0,
-            sp: 0,
+            sp: 0xFF,
             a: 0,
             x: 0,
             y: 0,
@@ -159,6 +159,18 @@ impl CPU {
     fn set_pc(&mut self, address: u16) {
         self.pc = address;
     }
+
+    /// Push to the stack
+    fn push_stack(&mut self, byte: u8) {
+        self.memory.write(u16::from(self.sp) + 0x0100, byte);
+        self.sp = self.sp.wrapping_sub(1);
+    }
+
+    /// Pop from the stack
+    fn pop_stack(&mut self) -> u8 {
+        self.sp = self.sp.wrapping_add(1);
+        self.memory.read(u16::from(self.sp) + 0x0100)
+    }
 }
 
 #[cfg(test)]
@@ -177,5 +189,64 @@ mod test {
 
         assert_eq!(byte, 0xAA);
         assert_eq!(cpu.pc, 0x0003);
+    }
+
+    #[test]
+    fn pushing_to_the_stack() {
+        let mut cpu = CPU::new();
+        cpu.memory.load_ram(Vec::new());
+
+        cpu.push_stack(0xAD);
+        cpu.push_stack(0xDE);
+
+        assert_eq!(cpu.sp, 0xFD);
+        assert_eq!(cpu.raw_read_byte(0x01FF), 0xAD);
+        assert_eq!(cpu.raw_read_byte(0x01FE), 0xDE);
+    }
+
+    #[test]
+    fn pushing_to_the_stack_wraps_the_stack_pointer() {
+        let mut cpu = CPU {
+            sp: 0x00,
+            ..CPU::default()
+        };
+        cpu.memory.load_ram(Vec::new());
+
+        cpu.push_stack(0xAD);
+        cpu.push_stack(0xDE);
+
+        assert_eq!(cpu.sp, 0xFE);
+        assert_eq!(cpu.raw_read_byte(0x0100), 0xAD);
+        assert_eq!(cpu.raw_read_byte(0x01FF), 0xDE);
+    }
+
+    #[test]
+    fn reading_from_the_stack() {
+        let mut cpu = CPU {
+            sp: 0xFD,
+            ..CPU::default()
+        };
+        cpu.memory.load_ram(Vec::new());
+        cpu.raw_write_byte(0x01FE, 0xDE);
+        cpu.raw_write_byte(0x01FF, 0xAD);
+
+        let first = cpu.pop_stack();
+        let second = cpu.pop_stack();
+
+        assert_eq!(cpu.sp, 0xFF);
+        assert_eq!(first, 0xDE);
+        assert_eq!(second, 0xAD);
+    }
+
+    #[test]
+    fn reading_from_the_stack_wraps_the_stack_pointer() {
+        let mut cpu = CPU::new();
+        cpu.memory.load_ram(Vec::new());
+        cpu.raw_write_byte(0x0100, 0xFF);
+
+        let result = cpu.pop_stack();
+
+        assert_eq!(cpu.sp, 0x00);
+        assert_eq!(result, 0xFF);
     }
 }
