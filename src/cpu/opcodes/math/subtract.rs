@@ -52,7 +52,9 @@ mod test {
             a: 4,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0x01, 0xFF, 0xFF]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0x01, 0xFF, 0xFF])
+            .expect("Failed to load ram");
         cpu.flags.set_carry(true); // Carry == No borrow
 
         let cycles = sbc(&mut cpu, &Addressing::Immediate);
@@ -69,7 +71,9 @@ mod test {
             a: 4,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0x01, 0xFF, 0xFF]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0x01, 0xFF, 0xFF])
+            .expect("Failed to load ram");
 
         let cycles = sbc(&mut cpu, &Addressing::Immediate);
 
@@ -85,7 +89,9 @@ mod test {
             a: 0xFF,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xAA, 0xFF, 0xAA, 0xAA]);
+        cpu.memory
+            .load_ram(vec![0xAA, 0xFF, 0xAA, 0xAA])
+            .expect("Failed to load ram");
         cpu.flags.set_carry(false);
 
         let cycles = sbc(&mut cpu, &Addressing::Immediate);
@@ -102,7 +108,9 @@ mod test {
             a: 0x00,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xAA, 0xFF, 0xAA, 0xAA]);
+        cpu.memory
+            .load_ram(vec![0xAA, 0xFF, 0xAA, 0xAA])
+            .expect("Failed to load ram");
         cpu.flags.set_carry(false);
 
         let cycles = sbc(&mut cpu, &Addressing::Immediate);
@@ -119,7 +127,9 @@ mod test {
             a: 0x00,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xAA, 0xFF, 0xAA, 0xAA]);
+        cpu.memory
+            .load_ram(vec![0xAA, 0xFF, 0xAA, 0xAA])
+            .expect("Failed to load ram");
         cpu.flags.set_carry(true);
 
         let cycles = sbc(&mut cpu, &Addressing::Immediate);

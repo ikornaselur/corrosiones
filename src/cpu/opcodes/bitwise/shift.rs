@@ -93,7 +93,9 @@ mod test {
             pc: 0x0002,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0b0101_0101, 0x01, 0x00]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0b0101_0101, 0x01, 0x00])
+            .expect("Failed to load ram");
 
         asl(&mut cpu, &Addressing::Absolute);
 
@@ -119,7 +121,9 @@ mod test {
             pc: 0x0002,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0b0101_0101, 0x01, 0x00]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0b0101_0101, 0x01, 0x00])
+            .expect("Failed to load ram");
 
         lsr(&mut cpu, &Addressing::Absolute);
 

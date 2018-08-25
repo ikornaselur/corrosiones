@@ -30,7 +30,7 @@ mod test {
             sp: 0xFE,
             ..CPU::default()
         };
-        cpu.memory.load_ram(Vec::new());
+        cpu.memory.load_ram(Vec::new()).expect("Failed to load ram");
         cpu.raw_write_byte(0x01FF, 0xAB);
 
         pla(&mut cpu);
@@ -44,7 +44,7 @@ mod test {
             sp: 0xFE,
             ..CPU::default()
         };
-        cpu.memory.load_ram(Vec::new());
+        cpu.memory.load_ram(Vec::new()).expect("Failed to load ram");
         cpu.raw_write_byte(0x01FF, 0b1100_0011);
 
         plp(&mut cpu);

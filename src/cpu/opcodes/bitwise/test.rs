@@ -45,7 +45,9 @@ mod test {
             a: 0b0000_1111,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0b0000_1111, 0x01, 0x00]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0b0000_1111, 0x01, 0x00])
+            .expect("Failed to load ram");
 
         bit(&mut cpu, &Addressing::Absolute);
 
@@ -66,7 +68,9 @@ mod test {
             a: 0b0000_0000,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0b0100_0000, 0x01, 0x00]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0b0100_0000, 0x01, 0x00])
+            .expect("Failed to load ram");
 
         bit(&mut cpu, &Addressing::Absolute);
 
@@ -81,7 +85,9 @@ mod test {
             a: 0b0000_0000,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0b1000_0000, 0x01, 0x00]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0b1000_0000, 0x01, 0x00])
+            .expect("Failed to load ram");
 
         bit(&mut cpu, &Addressing::Absolute);
 

@@ -36,7 +36,7 @@ mod test {
             sp: 0xF0,
             ..CPU::default()
         };
-        cpu.memory.load_ram(Vec::new());
+        cpu.memory.load_ram(Vec::new()).expect("Failed to load ram");
         cpu.raw_write_byte(0x01F1, 0b1100_0011);
         cpu.raw_write_byte(0x01F2, 0xAD);
         cpu.raw_write_byte(0x01F3, 0xDE);
@@ -57,7 +57,7 @@ mod test {
             sp: 0xF0,
             ..CPU::default()
         };
-        cpu.memory.load_ram(Vec::new());
+        cpu.memory.load_ram(Vec::new()).expect("Failed to load ram");
         cpu.raw_write_byte(0x01F1, 0xAD);
         cpu.raw_write_byte(0x01F2, 0xDE);
 

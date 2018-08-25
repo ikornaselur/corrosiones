@@ -107,7 +107,8 @@ mod test {
             ..CPU::default()
         };
         cpu.memory
-            .load_ram(vec![0x01, 0x02, 0x03, 0x04, 0x05, 0x06]);
+            .load_ram(vec![0x01, 0x02, 0x03, 0x04, 0x05, 0x06])
+            .expect("Failed to load ram");
 
         let cycles = lda(&mut cpu, &Addressing::Immediate);
 
@@ -121,7 +122,9 @@ mod test {
             pc: 0x0002,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0x00, 0xDE, 0x01, 0x00]);
+        cpu.memory
+            .load_ram(vec![0x00, 0xDE, 0x01, 0x00])
+            .expect("Failed to load ram");
 
         let cycles = lda(&mut cpu, &Addressing::ZeroPage);
 
@@ -136,7 +139,9 @@ mod test {
             x: 0x02,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0x00, 0xDE, 0x01, 0xAD]);
+        cpu.memory
+            .load_ram(vec![0x00, 0xDE, 0x01, 0xAD])
+            .expect("Failed to load ram");
 
         let cycles = lda(&mut cpu, &Addressing::ZeroPageX);
 
@@ -151,7 +156,9 @@ mod test {
             x: 0xFF,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xAA, 0xDE, 0x01, 0xAD]);
+        cpu.memory
+            .load_ram(vec![0xAA, 0xDE, 0x01, 0xAD])
+            .expect("Failed to load ram");
 
         let cycles = lda(&mut cpu, &Addressing::ZeroPageX);
 
@@ -166,7 +173,8 @@ mod test {
             ..CPU::default()
         };
         cpu.memory
-            .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA]);
+            .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA])
+            .expect("Failed to load ram");
 
         let cycles = lda(&mut cpu, &Addressing::Absolute);
 
@@ -182,7 +190,8 @@ mod test {
             ..CPU::default()
         };
         cpu.memory
-            .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA, 0xBB]);
+            .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA, 0xBB])
+            .expect("Failed to load ram");
 
         let cycles = lda(&mut cpu, &Addressing::AbsoluteX);
 
@@ -198,7 +207,8 @@ mod test {
             ..CPU::default()
         };
         cpu.memory
-            .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA, 0xBB, 0xCC]);
+            .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA, 0xBB, 0xCC])
+            .expect("Failed to load ram");
 
         let cycles = lda(&mut cpu, &Addressing::AbsoluteY);
 
@@ -214,7 +224,8 @@ mod test {
             ..CPU::default()
         };
         cpu.memory
-            .load_ram(vec![0xFF, 0xAA, 0x04, 0xFF, 0xFF, 0x01, 0x00]);
+            .load_ram(vec![0xFF, 0xAA, 0x04, 0xFF, 0xFF, 0x01, 0x00])
+            .expect("Failed to load ram");
 
         let cycles = lda(&mut cpu, &Addressing::IndirectX);
 
@@ -230,7 +241,8 @@ mod test {
             ..CPU::default()
         };
         cpu.memory
-            .load_ram(vec![0xFF, 0xFF, 0xAA, 0x06, 0xFF, 0xFF, 0x01, 0x00]);
+            .load_ram(vec![0xFF, 0xFF, 0xAA, 0x06, 0xFF, 0xFF, 0x01, 0x00])
+            .expect("Failed to load ram");
 
         let cycles = lda(&mut cpu, &Addressing::IndirectY);
 
@@ -245,7 +257,8 @@ mod test {
             ..CPU::default()
         };
         cpu.memory
-            .load_ram(vec![0x01, 0x02, 0x03, 0x04, 0x05, 0x06]);
+            .load_ram(vec![0x01, 0x02, 0x03, 0x04, 0x05, 0x06])
+            .expect("Failed to load ram");
 
         let cycles = ldx(&mut cpu, &Addressing::Immediate);
 
@@ -259,7 +272,9 @@ mod test {
             pc: 0x0002,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0x00, 0xDE, 0x01, 0x00]);
+        cpu.memory
+            .load_ram(vec![0x00, 0xDE, 0x01, 0x00])
+            .expect("Failed to load ram");
 
         let cycles = ldx(&mut cpu, &Addressing::ZeroPage);
 
@@ -274,7 +289,9 @@ mod test {
             x: 0x02,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0x00, 0xDE, 0x01, 0xAD]);
+        cpu.memory
+            .load_ram(vec![0x00, 0xDE, 0x01, 0xAD])
+            .expect("Failed to load ram");
 
         let cycles = ldx(&mut cpu, &Addressing::ZeroPageX);
 
@@ -289,7 +306,9 @@ mod test {
             x: 0xFF,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xAA, 0xDE, 0x01, 0xAD]);
+        cpu.memory
+            .load_ram(vec![0xAA, 0xDE, 0x01, 0xAD])
+            .expect("Failed to load ram");
 
         let cycles = ldx(&mut cpu, &Addressing::ZeroPageX);
 
@@ -304,7 +323,8 @@ mod test {
             ..CPU::default()
         };
         cpu.memory
-            .load_ram(vec![0x01, 0x02, 0x03, 0x04, 0x05, 0x06]);
+            .load_ram(vec![0x01, 0x02, 0x03, 0x04, 0x05, 0x06])
+            .expect("Failed to load ram");
 
         let cycles = ldy(&mut cpu, &Addressing::Immediate);
 
@@ -318,7 +338,9 @@ mod test {
             pc: 0x0002,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0x00, 0xDE, 0x01, 0x00]);
+        cpu.memory
+            .load_ram(vec![0x00, 0xDE, 0x01, 0x00])
+            .expect("Failed to load ram");
 
         let cycles = ldy(&mut cpu, &Addressing::ZeroPage);
 
@@ -333,7 +355,9 @@ mod test {
             x: 0x02,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0x00, 0xDE, 0x01, 0xAD]);
+        cpu.memory
+            .load_ram(vec![0x00, 0xDE, 0x01, 0xAD])
+            .expect("Failed to load ram");
 
         let cycles = ldy(&mut cpu, &Addressing::ZeroPageX);
 
@@ -348,7 +372,9 @@ mod test {
             x: 0xFF,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xAA, 0xDE, 0x01, 0xAD]);
+        cpu.memory
+            .load_ram(vec![0xAA, 0xDE, 0x01, 0xAD])
+            .expect("Failed to load ram");
 
         let cycles = ldy(&mut cpu, &Addressing::ZeroPageX);
 

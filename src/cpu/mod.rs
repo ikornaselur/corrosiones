@@ -4,6 +4,10 @@ pub mod memory;
 pub mod opcodes;
 pub mod utils;
 
+use std::error::Error;
+use std::fs::File;
+use std::io::prelude::*;
+
 pub(crate) use cpu::addressing::Addressing;
 pub(crate) use cpu::flags::Flags;
 pub(crate) use cpu::memory::Memory;
@@ -179,6 +183,51 @@ impl CPU {
         self.sp = self.sp.wrapping_add(1);
         self.memory.read(u16::from(self.sp) + 0x0100)
     }
+
+    pub fn load_file(&mut self, filename: String) -> Result<(), Box<Error>> {
+        let mut f = File::open(filename)?;
+        let mut buffer = Vec::new();
+        f.read_to_end(&mut buffer)?;
+
+        self.process_file(&buffer[..])?;
+
+        Ok(())
+    }
+
+    fn process_file(&mut self, buffer: &[u8]) -> Result<(), &'static str> {
+        if buffer[0..=3] != [b'N', b'E', b'S', 0x1A] {
+            return Err("Invalid magic header");
+        }
+        let prg_rom_banks = buffer[4];
+        let chr_rom_banks = buffer[5];
+        let rom_control_byte1 = buffer[6];
+        let rom_control_byte2 = buffer[7];
+        let ram_banks = buffer[8];
+
+        let mapper = rom_control_byte1 & 0b1111_0000 >> 4 | rom_control_byte2 & 0b1111_0000;
+
+        match mapper {
+            0 => nrom(self, buffer)?,
+            _ => return Err("Unsupported mapper"),
+        }
+
+        Ok(())
+    }
+}
+
+pub fn nrom(cpu: &mut CPU, buffer: &[u8]) -> Result<(), &'static str> {
+    match buffer[4] {
+        1 => {
+            let mut bank = Vec::from(&buffer[0x8000..=0x8FFF]);
+            bank.extend(&buffer[0x8000..=0x8FFF]);
+            cpu.memory.load_rom(bank)?;
+        }
+        2 => cpu.memory.load_rom(Vec::from(&buffer[0x8000..=0xFFFF]))?,
+        _ => {
+            return Err("NROM only supports 1 or 2 PRG ROM banks");
+        }
+    }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -191,7 +240,9 @@ mod test {
             pc: 0x0002,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0xAA, 0xFF]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0xAA, 0xFF])
+            .expect("Failed to load ram");
 
         let byte = cpu.read_next_byte(true);
 
@@ -202,7 +253,7 @@ mod test {
     #[test]
     fn pushing_to_the_stack() {
         let mut cpu = CPU::new();
-        cpu.memory.load_ram(Vec::new());
+        cpu.memory.load_ram(Vec::new()).expect("Failed to load ram");
 
         cpu.push_stack(0xAD);
         cpu.push_stack(0xDE);
@@ -218,7 +269,7 @@ mod test {
             sp: 0x00,
             ..CPU::default()
         };
-        cpu.memory.load_ram(Vec::new());
+        cpu.memory.load_ram(Vec::new()).expect("Failed to load ram");
 
         cpu.push_stack(0xAD);
         cpu.push_stack(0xDE);
@@ -234,7 +285,7 @@ mod test {
             sp: 0xFD,
             ..CPU::default()
         };
-        cpu.memory.load_ram(Vec::new());
+        cpu.memory.load_ram(Vec::new()).expect("Failed to load ram");
         cpu.raw_write_byte(0x01FE, 0xDE);
         cpu.raw_write_byte(0x01FF, 0xAD);
 
@@ -249,7 +300,7 @@ mod test {
     #[test]
     fn reading_from_the_stack_wraps_the_stack_pointer() {
         let mut cpu = CPU::new();
-        cpu.memory.load_ram(Vec::new());
+        cpu.memory.load_ram(Vec::new()).expect("Failed to load ram");
         cpu.raw_write_byte(0x0100, 0xFF);
 
         let result = cpu.pop_stack();

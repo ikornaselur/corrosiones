@@ -30,7 +30,7 @@ mod test {
             a: 0xAB,
             ..CPU::default()
         };
-        cpu.memory.load_ram(Vec::new());
+        cpu.memory.load_ram(Vec::new()).expect("Failed to load ram");
 
         pha(&mut cpu);
 
@@ -43,7 +43,7 @@ mod test {
             a: 0xAB,
             ..CPU::default()
         };
-        cpu.memory.load_ram(Vec::new());
+        cpu.memory.load_ram(Vec::new()).expect("Failed to load ram");
         cpu.flags.set_carry(true);
         cpu.flags.set_zero(true);
         cpu.flags.set_overflow(true);

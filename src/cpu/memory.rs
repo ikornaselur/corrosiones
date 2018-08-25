@@ -6,7 +6,7 @@ const RAM_SIZE: usize = 0x0800;
 const IO_SIZE: usize = 0x0028;
 // const EXPANSION_ROM_SIZE: usize = 0x1980;
 // const SRAM_SIZE: usize = 0x2000;
-// const ROM_SIZE: usize = 0x2000;
+const ROM_SIZE: usize = 0x8000;
 
 pub struct Memory {
     ram: Vec<u8>,
@@ -47,18 +47,26 @@ impl Memory {
     /// ```
     /// let mut memory = corrosiones::cpu::memory::Memory::new();
     ///
-    /// memory.load_ram(vec![0xDE, 0xAD, 0xBE, 0xEF]);
+    /// memory.load_ram(vec![0xDE, 0xAD, 0xBE, 0xEF]).expect("Failed to load ram");
     /// ```
-    pub fn load_ram(&mut self, ram: Vec<u8>) {
+    pub fn load_ram(&mut self, ram: Vec<u8>) -> Result<(), &'static str> {
         if ram.len() > RAM_SIZE {
-            panic!(
-                "Ram too long, can't exceed 0x{:04X?}. Was: {:04X?}",
-                RAM_SIZE,
-                ram.len()
-            )
+            return Err("RAM too big");
         }
         self.ram = ram;
         self.ram.resize(RAM_SIZE, 0x00);
+
+        Ok(())
+    }
+
+    pub fn load_rom(&mut self, rom: Vec<u8>) -> Result<(), &'static str> {
+        if rom.len() > ROM_SIZE {
+            return Err("ROM too big");
+        }
+        self.rom = rom;
+        self.rom.resize(ROM_SIZE, 0x00);
+
+        Ok(())
     }
 
     /// Read from the memory
@@ -74,7 +82,7 @@ impl Memory {
     /// ```
     /// let mut memory = corrosiones::cpu::memory::Memory::new();
     ///
-    /// memory.load_ram(vec![0xDE, 0xAD, 0xBE, 0xEF]);
+    /// memory.load_ram(vec![0xDE, 0xAD, 0xBE, 0xEF]).expect("Failed to load ram");
     ///
     /// assert_eq!(memory.read(0x0001), 0xAD);
     /// assert_eq!(memory.read(0x1001), 0xAD); // Mirrored RAM read
@@ -106,7 +114,7 @@ impl Memory {
     /// ```
     /// let mut memory = corrosiones::cpu::memory::Memory::new();
     ///
-    /// memory.load_ram(vec![0x00, 0x00]);
+    /// memory.load_ram(vec![0x00, 0x00]).expect("Failed to load ram");
     ///
     /// memory.write(0x0001, 0xAB);
     ///
@@ -131,7 +139,9 @@ mod test {
     #[test]
     fn load_ram() {
         let mut memory = Memory::new();
-        memory.load_ram(vec![0x01, 0x02, 0x03, 0x04]);
+        memory
+            .load_ram(vec![0x01, 0x02, 0x03, 0x04])
+            .expect("Failed to load ram");
 
         assert_eq!(memory.ram[0], 0x01);
         assert_eq!(memory.ram[1], 0x02);

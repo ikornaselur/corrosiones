@@ -46,7 +46,9 @@ mod test {
             pc: 0x0002,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0x05]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0x05])
+            .expect("Failed to load ram");
         cpu.flags.zero = false;
 
         bne(&mut cpu);
@@ -60,7 +62,9 @@ mod test {
             pc: 0x0002,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0x05]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0x05])
+            .expect("Failed to load ram");
         cpu.flags.zero = true;
 
         bne(&mut cpu);
@@ -74,7 +78,9 @@ mod test {
             pc: 0x0002,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0x05]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0x05])
+            .expect("Failed to load ram");
         cpu.flags.zero = false;
 
         beq(&mut cpu);
@@ -88,7 +94,9 @@ mod test {
             pc: 0x0002,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0x05]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0x05])
+            .expect("Failed to load ram");
         cpu.flags.zero = true;
 
         beq(&mut cpu);

@@ -116,7 +116,9 @@ mod test {
             pc: 0x0001,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0x50, 0x30, 0x50, 0x10]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0x50, 0x30, 0x50, 0x10])
+            .expect("Failed to load ram");
 
         cmp(&mut cpu, &Addressing::Immediate);
         assert_eq!(cpu.flags.carry, false); // A < M
@@ -138,7 +140,9 @@ mod test {
             pc: 0x0001,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0x50, 0x30, 0x10]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0x50, 0x30, 0x10])
+            .expect("Failed to load ram");
 
         cmp(&mut cpu, &Addressing::Immediate);
         assert_eq!(cpu.flags.zero, false); // A < M
@@ -157,7 +161,9 @@ mod test {
             pc: 0x0001,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0b1000_0000, 0b0111_1111]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0b1000_0000, 0b0111_1111])
+            .expect("Failed to load ram");
 
         cmp(&mut cpu, &Addressing::Immediate);
         assert_eq!(cpu.flags.negative, true);
@@ -173,7 +179,9 @@ mod test {
             pc: 0x0001,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0x50, 0x30, 0x50, 0x10]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0x50, 0x30, 0x50, 0x10])
+            .expect("Failed to load ram");
 
         cpx(&mut cpu, &Addressing::Immediate);
         assert_eq!(cpu.flags.carry, false); // A < M
@@ -195,7 +203,9 @@ mod test {
             pc: 0x0001,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0x50, 0x30, 0x10]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0x50, 0x30, 0x10])
+            .expect("Failed to load ram");
 
         cpx(&mut cpu, &Addressing::Immediate);
         assert_eq!(cpu.flags.zero, false); // A < M
@@ -214,7 +224,9 @@ mod test {
             pc: 0x0001,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0b1000_0000, 0b0111_1111]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0b1000_0000, 0b0111_1111])
+            .expect("Failed to load ram");
 
         cpx(&mut cpu, &Addressing::Immediate);
         assert_eq!(cpu.flags.negative, true);
@@ -230,7 +242,9 @@ mod test {
             pc: 0x0001,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0x50, 0x30, 0x50, 0x10]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0x50, 0x30, 0x50, 0x10])
+            .expect("Failed to load ram");
 
         cpy(&mut cpu, &Addressing::Immediate);
         assert_eq!(cpu.flags.carry, false); // A < M
@@ -252,7 +266,9 @@ mod test {
             pc: 0x0001,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0x50, 0x30, 0x10]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0x50, 0x30, 0x10])
+            .expect("Failed to load ram");
 
         cpy(&mut cpu, &Addressing::Immediate);
         assert_eq!(cpu.flags.zero, false); // A < M
@@ -271,7 +287,9 @@ mod test {
             pc: 0x0001,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0b1000_0000, 0b0111_1111]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0b1000_0000, 0b0111_1111])
+            .expect("Failed to load ram");
 
         cpy(&mut cpu, &Addressing::Immediate);
         assert_eq!(cpu.flags.negative, true);
