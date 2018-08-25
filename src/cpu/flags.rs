@@ -60,6 +60,10 @@ impl Flags {
     pub fn set_overflow(&mut self, overflow: bool) {
         self.overflow = overflow;
     }
+
+    pub fn set_interrupt_disable(&mut self, id: bool) {
+        self.interrupt_disable = id;
+    }
 }
 
 impl From<u8> for Flags {
