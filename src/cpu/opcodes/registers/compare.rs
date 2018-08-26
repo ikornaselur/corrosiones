@@ -38,7 +38,7 @@ pub fn cmp(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let acc = cpu.a;
     cpu.flags.set_carry(byte <= acc);
     cpu.flags.set_zero(byte == acc);
-    cpu.flags.set_negative_from_byte(byte);
+    cpu.flags.set_negative(byte > acc);
 
     cycles
 }
@@ -152,24 +152,6 @@ mod test {
 
         cmp(&mut cpu, &Addressing::Immediate);
         assert_eq!(cpu.flags.zero, false); // A > M
-    }
-
-    #[test]
-    fn cmp_sets_negative_if_memory_negative() {
-        let mut cpu = CPU {
-            a: 0x30,
-            pc: 0x0001,
-            ..CPU::default()
-        };
-        cpu.memory
-            .load_ram(vec![0xFF, 0b1000_0000, 0b0111_1111])
-            .expect("Failed to load ram");
-
-        cmp(&mut cpu, &Addressing::Immediate);
-        assert_eq!(cpu.flags.negative, true);
-
-        cmp(&mut cpu, &Addressing::Immediate);
-        assert_eq!(cpu.flags.negative, false);
     }
 
     #[test]
@@ -296,5 +278,26 @@ mod test {
 
         cpy(&mut cpu, &Addressing::Immediate);
         assert_eq!(cpu.flags.negative, false);
+    }
+
+    #[test]
+    fn cmp_sets_negative_if_memory_is_bigger_than_accumulator() {
+        let mut cpu = CPU {
+            a: 0x05,
+            pc: 0x0001,
+            ..CPU::default()
+        };
+        cpu.memory
+            .load_ram(vec![0xFF, 0x04, 0x05, 0x06])
+            .expect("Failed to load ram");
+
+        cmp(&mut cpu, &Addressing::Immediate);
+        assert_eq!(cpu.flags.negative, false);
+
+        cmp(&mut cpu, &Addressing::Immediate);
+        assert_eq!(cpu.flags.negative, false);
+
+        cmp(&mut cpu, &Addressing::Immediate);
+        assert_eq!(cpu.flags.negative, true);
     }
 }
