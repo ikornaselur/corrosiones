@@ -47,7 +47,7 @@ pub fn jsr(cpu: &mut CPU, addressing: &Addressing) -> u8 {
         _ => panic!("JSR doesn't support {:?} addressing", addressing),
     };
 
-    let return_addr = cpu.pc - 1;
+    let return_addr = cpu.pc;
 
     cpu.push_stack((return_addr >> 8) as u8);
     cpu.push_stack(return_addr as u8);
@@ -104,8 +104,8 @@ mod test {
         jsr(&mut cpu, &Addressing::Absolute);
 
         assert_eq!(cpu.pc, 0xDEAD);
-        assert_eq!(cpu.sp, 0xFD);
-        assert_eq!(cpu.raw_read_byte(0x01FF), 0x00);
-        assert_eq!(cpu.raw_read_byte(0x01FE), 0x02);
+        assert_eq!(cpu.sp, 0xFB);
+        assert_eq!(cpu.raw_read_byte(0x01FD), 0x00);
+        assert_eq!(cpu.raw_read_byte(0x01FC), 0x03);
     }
 }
