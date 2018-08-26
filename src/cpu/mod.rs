@@ -77,8 +77,12 @@ impl CPU {
                 return self.a;
             }
             Addressing::Absolute => self.read_next_double(progress_pc),
-            Addressing::AbsoluteX => self.read_next_double(progress_pc) + u16::from(self.x),
-            Addressing::AbsoluteY => self.read_next_double(progress_pc) + u16::from(self.y),
+            Addressing::AbsoluteX => self
+                .read_next_double(progress_pc)
+                .wrapping_add(u16::from(self.x)),
+            Addressing::AbsoluteY => self
+                .read_next_double(progress_pc)
+                .wrapping_add(u16::from(self.y)),
             Addressing::IndirectX => {
                 let ptr = u16::from(self.read_next_byte(progress_pc) + self.x);
                 self.read_double(ptr)
