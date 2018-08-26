@@ -27,6 +27,7 @@ mod test {
     #[test]
     fn pha_pushes_accumulator_on_stack() {
         let mut cpu = CPU {
+            sp: 0xFF,
             a: 0xAB,
             ..CPU::default()
         };
@@ -40,6 +41,7 @@ mod test {
     #[test]
     fn php_pushes_flags_on_stack() {
         let mut cpu = CPU {
+            sp: 0xFF,
             a: 0xAB,
             ..CPU::default()
         };
@@ -51,6 +53,6 @@ mod test {
 
         php(&mut cpu);
 
-        assert_eq!(cpu.raw_read_byte(0x01FF), 0b1100_0011);
+        assert_eq!(cpu.raw_read_byte(0x01FF), cpu.flags.as_byte());
     }
 }
