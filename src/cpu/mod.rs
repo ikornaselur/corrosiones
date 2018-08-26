@@ -87,7 +87,7 @@ impl CPU {
                 let ptr = self.read_next_byte(progress_pc);
                 let lsb = self.memory.read(u16::from(ptr));
                 let msb = self.memory.read(u16::from(ptr.wrapping_add(1)));
-                let addr = (u16::from(msb) << 8) + u16::from(lsb);
+                let addr = (u16::from(msb) << 8) | u16::from(lsb);
                 addr.wrapping_add(u16::from(self.y))
             }
             Addressing::ZeroPage => u16::from(self.read_next_byte(progress_pc)),
@@ -175,7 +175,7 @@ impl CPU {
         if progress_pc {
             self.pc += 2;
         }
-        (u16::from(msb) << 8) + u16::from(lsb)
+        (u16::from(msb) << 8) | u16::from(lsb)
     }
 
     /// Read a byte from an address
@@ -194,7 +194,7 @@ impl CPU {
     pub fn read_double(&self, address: u16) -> u16 {
         let lsb = self.memory.read(address);
         let msb = self.memory.read(address + 1);
-        (u16::from(msb) << 8) + u16::from(lsb)
+        (u16::from(msb) << 8) | u16::from(lsb)
     }
 
     pub fn offset_pc(&mut self, offset: u16) {

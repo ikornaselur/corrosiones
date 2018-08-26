@@ -8,7 +8,7 @@ pub fn rti(cpu: &mut CPU) -> u8 {
     let lsb = cpu.pop_stack();
     let msb = cpu.pop_stack();
 
-    cpu.set_pc((u16::from(msb) << 8) + u16::from(lsb));
+    cpu.set_pc((u16::from(msb) << 8) | u16::from(lsb));
     cpu.flags.set_from_byte(flags);
 
     cycles
@@ -21,7 +21,7 @@ pub fn rts(cpu: &mut CPU) -> u8 {
     let lsb = cpu.pop_stack();
     let msb = cpu.pop_stack();
 
-    let pc = ((u16::from(msb) << 8) + u16::from(lsb)).wrapping_add(1);
+    let pc = ((u16::from(msb) << 8) | u16::from(lsb)).wrapping_add(1);
 
     cpu.set_pc(pc);
 
