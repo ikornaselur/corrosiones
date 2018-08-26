@@ -105,10 +105,7 @@ impl Memory {
     pub fn read(&self, addr: u16) -> u8 {
         let addr = usize::from(addr);
         let result = match addr {
-            0x0000...0x07FF => self.ram[addr],
-            0x0800...0x0FFF => self.ram[addr - 0x0800],
-            0x1000...0x17FF => self.ram[addr - 0x1000],
-            0x1800...0x1FFF => self.ram[addr - 0x1800],
+            0x0000...0x1FFF => self.ram[addr % 0x0800],
             0x2000...0x3FFF => self.io[(addr - 0x2000) % 0x0008],
             0x4000...0x401F => self.io[addr - 0x4000 + 0x0008],
             0x4020...0x5FFF => self.expansion_rom[addr - 0x4020],

@@ -8,7 +8,30 @@ use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 
-use cpu::opcodes::{jump, registers, storage};
+use cpu::opcodes::bitwise::and::and;
+use cpu::opcodes::bitwise::or::{eor, ora};
+use cpu::opcodes::bitwise::rotate::{rol, ror};
+use cpu::opcodes::bitwise::shift::{asl, lsr};
+use cpu::opcodes::bitwise::test::bit;
+use cpu::opcodes::branch::carry::{bcc, bcs};
+use cpu::opcodes::branch::negative::{bmi, bpl};
+use cpu::opcodes::branch::overflow::{bvc, bvs};
+use cpu::opcodes::branch::zero::{beq, bne};
+use cpu::opcodes::jump::jmp::{jmp, jsr};
+use cpu::opcodes::jump::ret::{rti, rts};
+use cpu::opcodes::math::add::adc;
+use cpu::opcodes::math::decrement::{dec, dex, dey};
+use cpu::opcodes::math::increment::{inc, inx, iny};
+use cpu::opcodes::math::subtract::sbc;
+use cpu::opcodes::registers::clear::{clc, cli, clv};
+use cpu::opcodes::registers::compare::{cmp, cpx, cpy};
+use cpu::opcodes::registers::set::{sec, sei};
+use cpu::opcodes::stack::pull::{pla, plp};
+use cpu::opcodes::stack::push::{pha, php};
+use cpu::opcodes::storage::load::{lda, ldx, ldy};
+use cpu::opcodes::storage::store::{sta, stx, sty};
+use cpu::opcodes::storage::transfer::{tax, tay, tsx, txa, txs, tya};
+use cpu::opcodes::system::nop;
 
 pub(crate) use cpu::addressing::Addressing;
 pub(crate) use cpu::flags::Flags;
@@ -228,10 +251,173 @@ impl CPU {
         );
         let byte = self.read_next_byte(true);
         let cycles = match byte {
-            0x4C => jump::jmp::jmp(self, &Addressing::Absolute),
-            0x78 => registers::set::sei(self),
-            0x8D => storage::store::sta(self, &Addressing::Absolute),
-            0xA9 => storage::load::lda(self, &Addressing::Immediate),
+            // 0x00 => BRK Implied
+            0x01 => ora(self, &Addressing::IndirectX),
+            0x05 => ora(self, &Addressing::ZeroPage),
+            0x06 => asl(self, &Addressing::ZeroPage),
+            0x08 => php(self),
+            0x09 => ora(self, &Addressing::Immediate),
+            0x0A => asl(self, &Addressing::Accumulator),
+            0x0D => ora(self, &Addressing::Immediate),
+            0x0E => asl(self, &Addressing::Absolute),
+
+            0x10 => bpl(self),
+            0x11 => ora(self, &Addressing::IndirectY),
+            0x15 => ora(self, &Addressing::ZeroPageX),
+            0x16 => asl(self, &Addressing::ZeroPageX),
+            0x18 => clc(self),
+            0x19 => ora(self, &Addressing::AbsoluteY),
+            0x1D => ora(self, &Addressing::AbsoluteX),
+            0x1E => asl(self, &Addressing::AbsoluteX),
+
+            0x20 => jsr(self, &Addressing::Absolute),
+            0x21 => and(self, &Addressing::IndirectX),
+            0x24 => bit(self, &Addressing::ZeroPage),
+            0x25 => and(self, &Addressing::ZeroPage),
+            0x26 => rol(self, &Addressing::ZeroPage),
+            0x28 => plp(self),
+            0x29 => and(self, &Addressing::Immediate),
+            0x2A => rol(self, &Addressing::Accumulator),
+            0x2C => bit(self, &Addressing::Absolute),
+            0x2D => and(self, &Addressing::Absolute),
+            0x2E => rol(self, &Addressing::Absolute),
+
+            0x30 => bmi(self),
+            0x31 => and(self, &Addressing::IndirectY),
+            0x35 => and(self, &Addressing::ZeroPageX),
+            0x36 => rol(self, &Addressing::ZeroPageX),
+            0x38 => sec(self),
+            0x39 => and(self, &Addressing::AbsoluteY),
+            0x3D => and(self, &Addressing::AbsoluteX),
+            0x3E => rol(self, &Addressing::AbsoluteX),
+
+            0x40 => rti(self),
+            0x41 => eor(self, &Addressing::IndirectX),
+            0x45 => eor(self, &Addressing::ZeroPage),
+            0x46 => lsr(self, &Addressing::ZeroPage),
+            0x48 => pha(self),
+            0x49 => eor(self, &Addressing::Immediate),
+            0x4A => lsr(self, &Addressing::Accumulator),
+            0x4C => jmp(self, &Addressing::Absolute),
+            0x4D => eor(self, &Addressing::Absolute),
+            0x4E => lsr(self, &Addressing::Absolute),
+
+            0x50 => bvc(self),
+            0x51 => eor(self, &Addressing::IndirectY),
+            0x55 => eor(self, &Addressing::ZeroPageX),
+            0x56 => lsr(self, &Addressing::ZeroPageX),
+            0x58 => cli(self),
+            0x59 => eor(self, &Addressing::AbsoluteY),
+            0x5D => eor(self, &Addressing::AbsoluteX),
+            0x5E => lsr(self, &Addressing::AbsoluteX),
+
+            0x60 => rts(self),
+            0x61 => adc(self, &Addressing::IndirectX),
+            0x65 => adc(self, &Addressing::ZeroPage),
+            0x66 => ror(self, &Addressing::ZeroPage),
+            0x68 => pla(self),
+            0x69 => adc(self, &Addressing::Immediate),
+            0x6A => ror(self, &Addressing::Accumulator),
+            0x6C => jmp(self, &Addressing::Indirect),
+            0x6D => adc(self, &Addressing::Absolute),
+            0x6E => ror(self, &Addressing::AbsoluteX),
+
+            0x70 => bvs(self),
+            0x71 => adc(self, &Addressing::IndirectY),
+            0x75 => adc(self, &Addressing::ZeroPageX),
+            0x76 => ror(self, &Addressing::ZeroPageX),
+            0x78 => sei(self),
+            0x79 => adc(self, &Addressing::AbsoluteY),
+            0x7D => adc(self, &Addressing::AbsoluteX),
+            0x7E => ror(self, &Addressing::Absolute),
+
+            0x81 => sta(self, &Addressing::IndirectX),
+            0x84 => sty(self, &Addressing::ZeroPage),
+            0x85 => sta(self, &Addressing::ZeroPage),
+            0x86 => stx(self, &Addressing::ZeroPage),
+            0x88 => dey(self),
+            0x8A => txa(self),
+            0x8C => sty(self, &Addressing::Absolute),
+            0x8D => sta(self, &Addressing::Absolute),
+            0x8E => stx(self, &Addressing::Absolute),
+
+            0x90 => bcc(self),
+            0x91 => sta(self, &Addressing::IndirectY),
+            0x94 => sty(self, &Addressing::ZeroPageX),
+            0x95 => sta(self, &Addressing::ZeroPageX),
+            0x96 => stx(self, &Addressing::ZeroPageY),
+            0x98 => tya(self),
+            0x99 => sta(self, &Addressing::AbsoluteY),
+            0x9A => txs(self),
+            0x9D => sta(self, &Addressing::AbsoluteX),
+
+            0xA0 => ldy(self, &Addressing::Immediate),
+            0xA1 => lda(self, &Addressing::IndirectX),
+            0xA2 => ldx(self, &Addressing::Immediate),
+            0xA4 => ldy(self, &Addressing::ZeroPage),
+            0xA5 => lda(self, &Addressing::ZeroPage),
+            0xA6 => ldx(self, &Addressing::ZeroPage),
+            0xA8 => tay(self),
+            0xA9 => lda(self, &Addressing::Immediate),
+            0xAA => tax(self),
+            0xAC => ldy(self, &Addressing::Absolute),
+            0xAD => lda(self, &Addressing::Absolute),
+            0xAE => ldx(self, &Addressing::Absolute),
+
+            0xB0 => bcs(self),
+            0xb1 => lda(self, &Addressing::IndirectY),
+            0xB4 => ldy(self, &Addressing::ZeroPageX),
+            0xB5 => lda(self, &Addressing::ZeroPageX),
+            0xB6 => ldx(self, &Addressing::ZeroPageY),
+            0xB8 => clv(self),
+            0xB9 => lda(self, &Addressing::AbsoluteY),
+            0xBA => tsx(self),
+            0xBC => ldy(self, &Addressing::AbsoluteX),
+            0xBD => lda(self, &Addressing::AbsoluteX),
+            0xBE => ldx(self, &Addressing::AbsoluteY),
+
+            0xC0 => cpy(self, &Addressing::Immediate),
+            0xC1 => cmp(self, &Addressing::IndirectX),
+            0xC4 => cpy(self, &Addressing::ZeroPage),
+            0xC5 => cmp(self, &Addressing::ZeroPage),
+            0xC6 => dec(self, &Addressing::ZeroPage),
+            0xC8 => iny(self),
+            0xC9 => cmp(self, &Addressing::Immediate),
+            0xCA => dex(self),
+            0xCC => cpy(self, &Addressing::Absolute),
+            0xCD => cmp(self, &Addressing::Absolute),
+            0xCE => dec(self, &Addressing::Absolute),
+
+            0xD0 => bne(self),
+            0xD1 => cmp(self, &Addressing::IndirectY),
+            0xD5 => cmp(self, &Addressing::ZeroPageX),
+            0xD6 => dec(self, &Addressing::ZeroPageX),
+            0xD8 => nop(),
+            0xD9 => cmp(self, &Addressing::AbsoluteY),
+            0xDD => cmp(self, &Addressing::AbsoluteX),
+            0xDE => dec(self, &Addressing::AbsoluteX),
+
+            0xE0 => cpx(self, &Addressing::Immediate),
+            0xE1 => sbc(self, &Addressing::IndirectX),
+            0xE4 => cpx(self, &Addressing::ZeroPage),
+            0xE5 => sbc(self, &Addressing::ZeroPage),
+            0xE6 => inc(self, &Addressing::ZeroPage),
+            0xE8 => inx(self),
+            0xE9 => sbc(self, &Addressing::Immediate),
+            0xEA => nop(),
+            0xEC => cpx(self, &Addressing::Absolute),
+            0xED => sbc(self, &Addressing::Absolute),
+            0xEE => inc(self, &Addressing::Absolute),
+
+            0xF0 => beq(self),
+            0xF1 => sbc(self, &Addressing::IndirectY),
+            0xF5 => sbc(self, &Addressing::ZeroPageX),
+            0xF6 => inc(self, &Addressing::ZeroPageX),
+            0xF8 => nop(),
+            0xF9 => sbc(self, &Addressing::AbsoluteY),
+            0xFD => sbc(self, &Addressing::AbsoluteX),
+            0xFE => inc(self, &Addressing::AbsoluteX),
+
             _ => panic!("Unknown opcode: 0x{:02X?}", byte),
         };
 
