@@ -24,7 +24,13 @@ pub fn jmp(cpu: &mut CPU, addressing: &Addressing) -> u8 {
         Addressing::Absolute => cpu.read_next_double(true),
         Addressing::Indirect => {
             let indirect_addr = cpu.read_next_double(true);
-            cpu.read_double(indirect_addr)
+            if indirect_addr as u8 == 0xFF {
+                let lsb = cpu.raw_read_byte(indirect_addr);
+                let msb = cpu.raw_read_byte(indirect_addr & !0xFF);
+                (u16::from(msb) << 8) | u16::from(lsb)
+            } else {
+                cpu.read_double(indirect_addr)
+            }
         }
         _ => panic!("JMP doesn't support {:?} addressing", addressing),
     };
@@ -89,6 +95,28 @@ mod test {
         jmp(&mut cpu, &Addressing::Indirect);
 
         assert_eq!(cpu.pc, 0xDEAD);
+    }
+
+    #[test]
+    fn jmp_indirect_boundary_bug() {
+        let mut cpu = CPU {
+            pc: 0x0002,
+            ..CPU::default()
+        };
+        cpu.memory
+            .load_ram(vec![0xAA; 257])
+            .expect("Failed to load ram");
+        // The address to read from
+        cpu.raw_write_byte(0x0002, 0xFF);
+        cpu.raw_write_byte(0x0003, 0x00);
+        // The PC bytes
+        cpu.raw_write_byte(0x0000, 0x11);
+        cpu.raw_write_byte(0x00FF, 0x22);
+        cpu.raw_write_byte(0x0100, 0x33);
+
+        jmp(&mut cpu, &Addressing::Indirect);
+
+        assert_eq!(cpu.pc, 0x1122);
     }
 
     #[test]
