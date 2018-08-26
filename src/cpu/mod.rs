@@ -23,9 +23,9 @@ use cpu::opcodes::math::add::adc;
 use cpu::opcodes::math::decrement::{dcp, dec, dex, dey};
 use cpu::opcodes::math::increment::{inc, inx, iny};
 use cpu::opcodes::math::subtract::sbc;
-use cpu::opcodes::registers::clear::{clc, cli, clv};
+use cpu::opcodes::registers::clear::{clc, cld, cli, clv};
 use cpu::opcodes::registers::compare::{cmp, cpx, cpy};
-use cpu::opcodes::registers::set::{sec, sei};
+use cpu::opcodes::registers::set::{sec, sed, sei};
 use cpu::opcodes::stack::pull::{pla, plp};
 use cpu::opcodes::stack::push::{pha, php};
 use cpu::opcodes::storage::load::{lda, ldx, ldy};
@@ -198,7 +198,7 @@ impl CPU {
         self.pc += offset;
     }
 
-    fn set_pc(&mut self, address: u16) {
+    pub fn set_pc(&mut self, address: u16) {
         self.pc = address;
     }
 
@@ -221,6 +221,7 @@ impl CPU {
 
         self.process_file(&buffer[..])?;
         self.memory.load_ram(Vec::new())?;
+        self.memory.load_sram(Vec::new())?;
         self.reset_vector();
 
         Ok(())
@@ -249,11 +250,18 @@ impl CPU {
         self.pc = address;
     }
 
-    pub fn step(&mut self) -> Option<u8> {
-        println!(
-            "A: 0x{:02X?} X: 0x{:02X?} Y: 0x{:02X?} SP: 0x{:02X?} PC: 0x{:04X?}",
-            self.a, self.x, self.y, self.sp, self.pc
-        );
+    pub fn step(&mut self, debug: bool) -> Option<u8> {
+        if debug {
+            println!(
+                "{:04X?} A: {:02X?} X: {:02X?} Y: {:02X?} P: {:02X?} SP: {:02X?}",
+                self.pc,
+                self.a,
+                self.x,
+                self.y,
+                self.flags.as_byte(),
+                self.sp
+            );
+        }
         let byte = self.read_next_byte(true);
         let cycles = match byte {
             // 0x00 => BRK Implied
@@ -402,7 +410,7 @@ impl CPU {
             0xD5 => cmp(self, &Addressing::ZeroPageX),
             0xD6 => dec(self, &Addressing::ZeroPageX),
             0xD7 => dcp(self, &Addressing::ZeroPageX),
-            0xD8 => nop(),
+            0xD8 => cld(self),
             0xD9 => cmp(self, &Addressing::AbsoluteY),
             0xDB => dcp(self, &Addressing::AbsoluteY),
             0xDD => cmp(self, &Addressing::AbsoluteX),
@@ -425,7 +433,7 @@ impl CPU {
             0xF1 => sbc(self, &Addressing::IndirectY),
             0xF5 => sbc(self, &Addressing::ZeroPageX),
             0xF6 => inc(self, &Addressing::ZeroPageX),
-            0xF8 => nop(),
+            0xF8 => sed(self),
             0xF9 => sbc(self, &Addressing::AbsoluteY),
             0xFD => sbc(self, &Addressing::AbsoluteX),
             0xFE => inc(self, &Addressing::AbsoluteX),

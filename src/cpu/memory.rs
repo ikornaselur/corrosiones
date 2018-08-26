@@ -5,14 +5,14 @@
 const RAM_SIZE: usize = 0x0800;
 const IO_SIZE: usize = 0x0028;
 // const EXPANSION_ROM_SIZE: usize = 0x1980;
-// const SRAM_SIZE: usize = 0x2000;
+const SRAM_SIZE: usize = 0x2000;
 const ROM_SIZE: usize = 0x8000;
 
 pub struct Memory {
     ram: Vec<u8>,
     io: Vec<u8>,
     expansion_rom: Vec<u8>,
-    sram: Vec<u8>,
+    pub(crate) sram: Vec<u8>,
     pub(crate) rom: Vec<u8>,
 }
 
@@ -55,6 +55,16 @@ impl Memory {
         }
         self.ram = ram;
         self.ram.resize(RAM_SIZE, 0x00);
+
+        Ok(())
+    }
+
+    pub fn load_sram(&mut self, sram: Vec<u8>) -> Result<(), &'static str> {
+        if sram.len() > SRAM_SIZE {
+            return Err("RAM too big");
+        }
+        self.sram = sram;
+        self.sram.resize(SRAM_SIZE, 0x00);
 
         Ok(())
     }
@@ -114,7 +124,7 @@ impl Memory {
             _ => panic!("Reading from 0x{:04X?} is unsupported", addr),
         };
 
-        println!("0x{:04X?}: 0x{:02X?}", addr, result);
+        //println!("0x{:04X?}: 0x{:02X?}", addr, result);
         result
     }
 
@@ -137,9 +147,11 @@ impl Memory {
     /// ```
     pub fn write(&mut self, addr: u16, byte: u8) {
         let addr = usize::from(addr);
+        // println!("Writing into 0x{:04X?}", addr);
         match addr {
             0x0000...0x1FFF => self.ram[addr % 0x0800] = byte,
             0x2000...0x3FFF => self.io[(addr - 0x2000) % 0x0008] = byte,
+            0x4000...0x401F => self.io[addr - 0x4000 + 0x0008] = byte,
             _ => panic!("Unable to write to 0x{:04X?}", addr),
         }
     }
