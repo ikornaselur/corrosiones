@@ -20,7 +20,7 @@ use cpu::opcodes::branch::zero::{beq, bne};
 use cpu::opcodes::jump::jmp::{jmp, jsr};
 use cpu::opcodes::jump::ret::{rti, rts};
 use cpu::opcodes::math::add::adc;
-use cpu::opcodes::math::decrement::{dec, dex, dey};
+use cpu::opcodes::math::decrement::{dcp, dec, dex, dey};
 use cpu::opcodes::math::increment::{inc, inx, iny};
 use cpu::opcodes::math::subtract::sbc;
 use cpu::opcodes::registers::clear::{clc, cli, clv};
@@ -126,9 +126,14 @@ impl CPU {
         self.memory.write(address, byte);
     }
 
-    pub fn update_byte<F>(&mut self, addressing: &Addressing, update_fn: F, progress_pc: bool) -> u8
+    pub fn update_byte<F>(
+        &mut self,
+        addressing: &Addressing,
+        update_fn: F,
+        progress_pc: bool,
+    ) -> (u8, Option<bool>)
     where
-        F: Fn(u8) -> u8,
+        F: Fn(u8) -> (u8, Option<bool>),
     {
         let address = match addressing {
             Addressing::Absolute => self.read_next_double(progress_pc),
@@ -148,9 +153,9 @@ impl CPU {
             }
             _ => panic!("update_byte doesn't support {:?} addressing", addressing),
         };
-        let byte = update_fn(self.memory.read(address));
+        let (byte, extra) = update_fn(self.memory.read(address));
         self.memory.write(address, byte);
-        byte
+        (byte, extra)
     }
 
     fn read_next_byte(&mut self, progress_pc: bool) -> u8 {
@@ -378,24 +383,31 @@ impl CPU {
 
             0xC0 => cpy(self, &Addressing::Immediate),
             0xC1 => cmp(self, &Addressing::IndirectX),
+            0xC3 => dcp(self, &Addressing::IndirectX),
             0xC4 => cpy(self, &Addressing::ZeroPage),
             0xC5 => cmp(self, &Addressing::ZeroPage),
             0xC6 => dec(self, &Addressing::ZeroPage),
+            0xC7 => dcp(self, &Addressing::ZeroPage),
             0xC8 => iny(self),
             0xC9 => cmp(self, &Addressing::Immediate),
             0xCA => dex(self),
             0xCC => cpy(self, &Addressing::Absolute),
             0xCD => cmp(self, &Addressing::Absolute),
             0xCE => dec(self, &Addressing::Absolute),
+            0xCF => dcp(self, &Addressing::Absolute),
 
             0xD0 => bne(self),
             0xD1 => cmp(self, &Addressing::IndirectY),
+            0xD3 => dcp(self, &Addressing::IndirectY),
             0xD5 => cmp(self, &Addressing::ZeroPageX),
             0xD6 => dec(self, &Addressing::ZeroPageX),
+            0xD7 => dcp(self, &Addressing::ZeroPageX),
             0xD8 => nop(),
             0xD9 => cmp(self, &Addressing::AbsoluteY),
+            0xDB => dcp(self, &Addressing::AbsoluteY),
             0xDD => cmp(self, &Addressing::AbsoluteX),
             0xDE => dec(self, &Addressing::AbsoluteX),
+            0xDF => dcp(self, &Addressing::AbsoluteX),
 
             0xE0 => cpx(self, &Addressing::Immediate),
             0xE1 => sbc(self, &Addressing::IndirectX),

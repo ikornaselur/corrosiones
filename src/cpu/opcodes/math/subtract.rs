@@ -41,6 +41,38 @@ pub fn sbc(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     cycles
 }
 
+/// Subtract one from memory without borrow
+///
+/// *Undocumented instruction*
+///
+/// # Supported addressing modes
+///
+/// * Absolute - 6 Cycles
+/// * Absolute X - 7 Cycles
+/// * Absolute Y - 7 Cycles
+/// * Indirect X - 8 Cycles
+/// * Indirect Y - 8 Cycles
+/// * Zero Page - 5 Cycles
+/// * Zero Page X - 6 Cycles
+///
+/// # Flags affected
+///
+/// * Carry
+pub fn dcp(cpu: &mut CPU, addressing: &Addressing) -> u8 {
+    let cycles = match addressing {
+        Addressing::ZeroPage => 5,
+        Addressing::Absolute | Addressing::ZeroPageX => 6,
+        Addressing::AbsoluteX | Addressing::AbsoluteY => 7,
+        Addressing::IndirectX | Addressing::IndirectY => 8,
+        _ => panic!("DCP doesn't support {:?} addressing", addressing),
+    };
+
+    let byte = !cpu.read_byte(&addressing, true);
+    add_byte_to_accumulator(cpu, byte);
+
+    cycles
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
