@@ -66,14 +66,7 @@ pub fn tsx(cpu: &mut CPU) -> u8 {
 }
 
 /// Transfer X index to stack pointer
-///
-/// # Flags affected
-///
-/// * Negative
-/// * Zero
 pub fn txs(cpu: &mut CPU) -> u8 {
-    cpu.flags.set_zero_from_byte(cpu.x);
-    cpu.flags.set_negative_from_byte(cpu.x);
     cpu.sp = cpu.x;
     2
 }
@@ -286,7 +279,7 @@ mod test {
     }
 
     #[test]
-    fn txs_sets_zero_flag() {
+    fn txs_doesnt_set_zero_flag() {
         let mut cpu = CPU {
             x: 0,
             sp: 0xFF,
@@ -295,11 +288,11 @@ mod test {
 
         txs(&mut cpu);
 
-        assert_eq!(cpu.flags.zero, true);
+        assert_eq!(cpu.flags.zero, false);
     }
 
     #[test]
-    fn txs_sets_negative_flag() {
+    fn txs_doesnt_set_negative_flag() {
         let mut cpu = CPU {
             x: 0b1000_0000,
             ..CPU::default()
@@ -307,6 +300,6 @@ mod test {
 
         txs(&mut cpu);
 
-        assert_eq!(cpu.flags.negative, true);
+        assert_eq!(cpu.flags.negative, false);
     }
 }
