@@ -43,10 +43,10 @@ pub fn lda(cpu: &mut CPU, addressing: &Addressing) -> u8 {
 /// # Supported addressing modes
 ///
 /// * Absolute - 4 Cycles
-/// * Absolute X - 4* Cycles
+/// * Absolute Y - 4* Cycles
 /// * Immediate - 2 Cycles
 /// * Zero Page - 3 Cycles
-/// * Zero Page X - 4 Cycles
+/// * Zero Page Y - 4 Cycles
 ///
 /// \* Add 1 if page boundary is crossed
 ///
@@ -56,7 +56,7 @@ pub fn lda(cpu: &mut CPU, addressing: &Addressing) -> u8 {
 /// * Zero
 pub fn ldx(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let cycles = match addressing {
-        Addressing::Absolute | Addressing::AbsoluteX | Addressing::ZeroPageX => 4,
+        Addressing::Absolute | Addressing::AbsoluteY | Addressing::ZeroPageY => 4,
         Addressing::Immediate => 2,
         Addressing::ZeroPage => 3,
         _ => panic!("LDX doesn't support {:?} addressing", addressing),
@@ -280,40 +280,6 @@ mod test {
 
         assert_eq!(cycles, 3);
         assert_eq!(cpu.x, 0xDE);
-    }
-
-    #[test]
-    fn ldx_zeropage_x() {
-        let mut cpu = CPU {
-            pc: 0x0002,
-            x: 0x02,
-            ..CPU::default()
-        };
-        cpu.memory
-            .load_ram(vec![0x00, 0xDE, 0x01, 0xAD])
-            .expect("Failed to load ram");
-
-        let cycles = ldx(&mut cpu, &Addressing::ZeroPageX);
-
-        assert_eq!(cycles, 4);
-        assert_eq!(cpu.x, 0xAD);
-    }
-
-    #[test]
-    fn ldx_zeropage_x_wrapping() {
-        let mut cpu = CPU {
-            pc: 0x0002,
-            x: 0xFF,
-            ..CPU::default()
-        };
-        cpu.memory
-            .load_ram(vec![0xAA, 0xDE, 0x01, 0xAD])
-            .expect("Failed to load ram");
-
-        let cycles = ldx(&mut cpu, &Addressing::ZeroPageX);
-
-        assert_eq!(cycles, 4);
-        assert_eq!(cpu.x, 0xAA);
     }
 
     #[test]

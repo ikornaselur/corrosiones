@@ -98,6 +98,9 @@ impl CPU {
             Addressing::ZeroPageX => {
                 u16::from(self.read_next_byte(progress_pc).wrapping_add(self.x))
             }
+            Addressing::ZeroPageY => {
+                u16::from(self.read_next_byte(progress_pc).wrapping_add(self.y))
+            }
             _ => panic!("read_byte doesn't support {:?} addressing", addressing),
         };
         self.memory.read(address)
