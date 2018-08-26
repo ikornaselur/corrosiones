@@ -53,7 +53,7 @@ impl Default for CPU {
             memory: Memory::new(),
             flags: Flags::new(),
             pc: 0,
-            sp: 0xFF,
+            sp: 0xFD,
             a: 0,
             x: 0,
             y: 0,
@@ -484,9 +484,9 @@ mod test {
         cpu.push_stack(0xAD);
         cpu.push_stack(0xDE);
 
-        assert_eq!(cpu.sp, 0xFD);
-        assert_eq!(cpu.raw_read_byte(0x01FF), 0xAD);
-        assert_eq!(cpu.raw_read_byte(0x01FE), 0xDE);
+        assert_eq!(cpu.sp, 0xFB);
+        assert_eq!(cpu.raw_read_byte(0x01FD), 0xAD);
+        assert_eq!(cpu.raw_read_byte(0x01FC), 0xDE);
     }
 
     #[test]
@@ -525,7 +525,10 @@ mod test {
 
     #[test]
     fn reading_from_the_stack_wraps_the_stack_pointer() {
-        let mut cpu = CPU::new();
+        let mut cpu = CPU {
+            sp: 0xFF,
+            ..CPU::default()
+        };
         cpu.memory.load_ram(Vec::new()).expect("Failed to load ram");
         cpu.raw_write_byte(0x0100, 0xFF);
 
