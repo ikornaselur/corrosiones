@@ -25,10 +25,11 @@ pub fn asl(cpu: &mut CPU, addressing: &Addressing) -> u8 {
         _ => panic!("ASL doesn't support {:?} addressing", addressing),
     };
 
-    let byte = cpu.read_byte(&addressing, false);
-    cpu.write_byte(&addressing, byte << 1, true);
+    let old_byte = cpu.read_byte(&addressing, false);
+    let byte = old_byte << 1;
+    cpu.write_byte(&addressing, byte, true);
 
-    cpu.flags.set_carry(byte >> 7 == 1);
+    cpu.flags.set_carry(old_byte >> 7 == 1);
     cpu.flags.set_zero_from_byte(byte);
     cpu.flags.set_negative_from_byte(byte);
 
@@ -60,10 +61,11 @@ pub fn lsr(cpu: &mut CPU, addressing: &Addressing) -> u8 {
         _ => panic!("LSR doesn't support {:?} addressing", addressing),
     };
 
-    let byte = cpu.read_byte(&addressing, false);
-    cpu.write_byte(&addressing, byte >> 1, true);
+    let old_byte = cpu.read_byte(&addressing, false);
+    let byte = old_byte >> 1;
+    cpu.write_byte(&addressing, byte, true);
 
-    cpu.flags.set_carry(byte & 1 == 1);
+    cpu.flags.set_carry(old_byte & 1 == 1);
     cpu.flags.set_zero_from_byte(byte);
     cpu.flags.set_negative_from_byte(byte);
 
@@ -128,5 +130,18 @@ mod test {
         lsr(&mut cpu, &Addressing::Absolute);
 
         assert_eq!(cpu.raw_read_byte(0x0001), 0b0010_1010);
+    }
+
+    #[test]
+    fn lsr_sets_zero_flag() {
+        let mut cpu = CPU {
+            a: 0x01,
+            ..CPU::default()
+        };
+
+        lsr(&mut cpu, &Addressing::Accumulator);
+
+        assert_eq!(cpu.a, 0);
+        assert_eq!(cpu.flags.zero, true);
     }
 }
