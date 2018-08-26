@@ -34,8 +34,8 @@ pub fn rol(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     cpu.write_byte(&addressing, rotated, true);
 
     cpu.flags.set_carry(byte >> 7 == 1);
-    cpu.flags.set_zero_from_byte(byte);
-    cpu.flags.set_negative_from_byte(byte);
+    cpu.flags.set_zero_from_byte(rotated);
+    cpu.flags.set_negative_from_byte(rotated);
 
     cycles
 }
@@ -74,8 +74,8 @@ pub fn ror(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     cpu.write_byte(&addressing, rotated, true);
 
     cpu.flags.set_carry(byte & 1 == 1);
-    cpu.flags.set_zero_from_byte(byte);
-    cpu.flags.set_negative_from_byte(byte);
+    cpu.flags.set_zero_from_byte(rotated);
+    cpu.flags.set_negative_from_byte(rotated);
 
     cycles
 }
