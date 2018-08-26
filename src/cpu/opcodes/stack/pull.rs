@@ -1,11 +1,19 @@
 use cpu::CPU;
 
 /// Pull Accumulator from the stack
+///
+/// # Flags affected
+///
+/// * Zero
+/// * Negative
 pub fn pla(cpu: &mut CPU) -> u8 {
     let cycles = 3;
 
     let acc = cpu.pop_stack();
     cpu.a = acc;
+
+    cpu.flags.set_zero_from_byte(acc);
+    cpu.flags.set_negative_from_byte(acc);
 
     cycles
 }
