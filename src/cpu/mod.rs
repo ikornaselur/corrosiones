@@ -333,7 +333,7 @@ impl CPU {
             0x6A => ror(self, &Addressing::Accumulator),
             0x6C => jmp(self, &Addressing::Indirect),
             0x6D => adc(self, &Addressing::Absolute),
-            0x6E => ror(self, &Addressing::AbsoluteX),
+            0x6E => ror(self, &Addressing::Absolute),
 
             0x70 => bvs(self),
             0x71 => adc(self, &Addressing::IndirectY),
@@ -342,7 +342,7 @@ impl CPU {
             0x78 => sei(self),
             0x79 => adc(self, &Addressing::AbsoluteY),
             0x7D => adc(self, &Addressing::AbsoluteX),
-            0x7E => ror(self, &Addressing::Absolute),
+            0x7E => ror(self, &Addressing::AbsoluteX),
 
             0x81 => sta(self, &Addressing::IndirectX),
             0x84 => sty(self, &Addressing::ZeroPage),
