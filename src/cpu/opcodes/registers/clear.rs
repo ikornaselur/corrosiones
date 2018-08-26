@@ -21,7 +21,12 @@ pub fn clv(cpu: &mut CPU) -> u8 {
     2
 }
 
-/// Clear
+/// Clear Decimal
+pub fn cld(cpu: &mut CPU) -> u8 {
+    cpu.flags.set_decimal(false);
+
+    2
+}
 
 #[cfg(test)]
 mod test {
@@ -55,5 +60,15 @@ mod test {
         clv(&mut cpu);
 
         assert_eq!(cpu.flags.overflow, false);
+    }
+
+    #[test]
+    fn cld_clears_decimal_flag() {
+        let mut cpu = CPU::new();
+        cpu.flags.set_decimal(true);
+
+        cld(&mut cpu);
+
+        assert_eq!(cpu.flags.decimal, false);
     }
 }
