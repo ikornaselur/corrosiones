@@ -84,8 +84,11 @@ impl CPU {
                 self.read_double(ptr)
             }
             Addressing::IndirectY => {
-                let ptr = u16::from(self.read_next_byte(progress_pc));
-                self.read_double(ptr) + u16::from(self.y)
+                let ptr = self.read_next_byte(progress_pc);
+                let lsb = self.memory.read(u16::from(ptr));
+                let msb = self.memory.read(u16::from(ptr.wrapping_add(1)));
+                let addr = (u16::from(msb) << 8) + u16::from(lsb);
+                addr.wrapping_add(u16::from(self.y))
             }
             Addressing::ZeroPage => u16::from(self.read_next_byte(progress_pc)),
             Addressing::ZeroPageX => {
