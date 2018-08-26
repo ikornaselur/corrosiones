@@ -41,10 +41,17 @@ impl Flags {
         let carry_byte = if self.carry { 1 } else { 0 };
         let zero_byte = if self.zero { 1 << 1 } else { 0 };
         let id_byte = if self.interrupt_disable { 1 << 2 } else { 0 };
+        let decimal_byte = if self.decimal { 1 << 3 } else { 0 };
         let overflow_byte = if self.overflow { 1 << 6 } else { 0 };
         let negative_byte = if self.negative { 1 << 7 } else { 0 };
 
-        carry_byte | zero_byte | id_byte | overflow_byte | negative_byte
+        0b0010_0000
+            | carry_byte
+            | zero_byte
+            | id_byte
+            | decimal_byte
+            | overflow_byte
+            | negative_byte
     }
 
     pub fn set_zero_from_byte(&mut self, byte: u8) {
@@ -80,25 +87,6 @@ impl Flags {
     }
 }
 
-impl From<Flags> for u8 {
-    fn from(flags: Flags) -> u8 {
-        let carry_byte = if flags.carry { 1 } else { 0 };
-        let zero_byte = if flags.zero { 1 << 1 } else { 0 };
-        let id_byte = if flags.interrupt_disable { 1 << 2 } else { 0 };
-        let decimal_byte = if flags.decimal { 1 << 3 } else { 0 };
-        let overflow_byte = if flags.overflow { 1 << 6 } else { 0 };
-        let negative_byte = if flags.negative { 1 << 7 } else { 0 };
-
-        0b0010_0000
-            | carry_byte
-            | zero_byte
-            | id_byte
-            | decimal_byte
-            | overflow_byte
-            | negative_byte
-    }
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
@@ -115,7 +103,7 @@ mod test {
             negative: false,
         };
 
-        assert_eq!(u8::from(flags), 0b0010_0111);
+        assert_eq!(flags.as_byte(), 0b0010_0111);
 
         let flags = Flags {
             carry: false,
@@ -127,6 +115,6 @@ mod test {
             negative: true,
         };
 
-        assert_eq!(u8::from(flags), 0b1110_1000);
+        assert_eq!(flags.as_byte(), 0b1110_1000);
     }
 }
