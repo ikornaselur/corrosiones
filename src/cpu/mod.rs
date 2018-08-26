@@ -271,7 +271,7 @@ impl CPU {
             0x08 => php(self),
             0x09 => ora(self, &Addressing::Immediate),
             0x0A => asl(self, &Addressing::Accumulator),
-            0x0D => ora(self, &Addressing::Immediate),
+            0x0D => ora(self, &Addressing::Absolute),
             0x0E => asl(self, &Addressing::Absolute),
 
             0x10 => bpl(self),
