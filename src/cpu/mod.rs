@@ -28,7 +28,7 @@ use cpu::opcodes::registers::compare::{cmp, cpx, cpy};
 use cpu::opcodes::registers::set::{sec, sed, sei};
 use cpu::opcodes::stack::pull::{pla, plp};
 use cpu::opcodes::stack::push::{pha, php};
-use cpu::opcodes::storage::load::{lda, ldx, ldy};
+use cpu::opcodes::storage::load::{lax, lda, ldx, ldy};
 use cpu::opcodes::storage::store::{sta, stx, sty};
 use cpu::opcodes::storage::transfer::{tax, tay, tsx, txa, txs, tya};
 use cpu::opcodes::system::nop;
@@ -400,27 +400,33 @@ impl CPU {
             0xA0 => ldy(self, &Addressing::Immediate),
             0xA1 => lda(self, &Addressing::IndirectX),
             0xA2 => ldx(self, &Addressing::Immediate),
+            0xA3 => lax(self, &Addressing::IndirectX),
             0xA4 => ldy(self, &Addressing::ZeroPage),
             0xA5 => lda(self, &Addressing::ZeroPage),
             0xA6 => ldx(self, &Addressing::ZeroPage),
+            0xA7 => lax(self, &Addressing::ZeroPage),
             0xA8 => tay(self),
             0xA9 => lda(self, &Addressing::Immediate),
             0xAA => tax(self),
             0xAC => ldy(self, &Addressing::Absolute),
             0xAD => lda(self, &Addressing::Absolute),
             0xAE => ldx(self, &Addressing::Absolute),
+            0xAF => lax(self, &Addressing::Absolute),
 
             0xB0 => bcs(self),
             0xB1 => lda(self, &Addressing::IndirectY),
+            0xB3 => lax(self, &Addressing::IndirectY),
             0xB4 => ldy(self, &Addressing::ZeroPageX),
             0xB5 => lda(self, &Addressing::ZeroPageX),
             0xB6 => ldx(self, &Addressing::ZeroPageY),
+            0xB7 => lax(self, &Addressing::ZeroPageY),
             0xB8 => clv(self),
             0xB9 => lda(self, &Addressing::AbsoluteY),
             0xBA => tsx(self),
             0xBC => ldy(self, &Addressing::AbsoluteX),
             0xBD => lda(self, &Addressing::AbsoluteX),
             0xBE => ldx(self, &Addressing::AbsoluteY),
+            0xBF => lax(self, &Addressing::AbsoluteY),
 
             0xC0 => cpy(self, &Addressing::Immediate),
             0xC1 => cmp(self, &Addressing::IndirectX),
