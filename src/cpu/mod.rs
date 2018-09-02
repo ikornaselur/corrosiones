@@ -8,7 +8,7 @@ use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 
-use cpu::opcodes::bitwise::and::{aac, and, asr};
+use cpu::opcodes::bitwise::and::{aac, and, arr, asr};
 use cpu::opcodes::bitwise::or::{eor, ora};
 use cpu::opcodes::bitwise::rotate::{rol, ror};
 use cpu::opcodes::bitwise::shift::{asl, lsr};
@@ -361,6 +361,7 @@ impl CPU {
             0x68 => pla(self),
             0x69 => adc(self, &Addressing::Immediate),
             0x6A => ror(self, &Addressing::Accumulator),
+            0x6B => arr(self, &Addressing::Immediate),
             0x6C => jmp(self, &Addressing::Indirect),
             0x6D => adc(self, &Addressing::Absolute),
             0x6E => ror(self, &Addressing::Absolute),

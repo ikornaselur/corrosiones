@@ -79,7 +79,7 @@ pub fn aac(cpu: &mut CPU, addressing: &Addressing) -> u8 {
 ///
 /// * Negative
 /// * Zero
-/// Carry
+/// * Carry
 pub fn asr(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let cycles = match addressing {
         Addressing::Immediate => 2,
@@ -93,6 +93,42 @@ pub fn asr(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     cpu.a = cpu.a >> 1;
     cpu.flags.set_zero_from_byte(cpu.a);
     cpu.flags.set_negative(false);
+
+    cycles
+}
+
+/// And memory with accumulator, rotate one bit to right and check bit 5 and 6:
+/// If 5 and 6: set C, clear V
+/// if !5 and !6: clear C, clear V
+/// if 5 and !6: clear C, set V
+/// if !5 and 6: set C, set V
+///
+/// *Undocumented instruction*
+///
+/// # Supported addressing modes
+///
+/// * Immediate - 2 cycles
+///
+/// # Flags affected
+///
+/// * Negative
+/// * Overflow
+/// * Zero
+/// * Carry
+pub fn arr(cpu: &mut CPU, addressing: &Addressing) -> u8 {
+    let cycles = match addressing {
+        Addressing::Immediate => 2,
+        _ => panic!("ARR doesn't support {:?} addressing", addressing),
+    };
+
+    cpu.a &= cpu.read_byte(&addressing, true);
+    cpu.a = cpu.a >> 1;
+
+    let bit5 = (cpu.a & (1 << 5)) > 0;
+    let bit6 = (cpu.a & (1 << 6)) > 0;
+
+    cpu.flags.set_carry(bit6);
+    cpu.flags.set_overflow(bit5 ^ bit6);
 
     cycles
 }
@@ -154,5 +190,74 @@ mod test {
         assert_eq!(cpu.flags.carry, true);
         assert_eq!(cpu.flags.zero, false);
         assert_eq!(cpu.flags.negative, false);
+    }
+
+    #[test]
+    fn arr_ands_memory_then_rotates_right_and_sets_c_and_clears_v_if_bit_5_and_6_are_set() {
+        let mut cpu = CPU {
+            pc: 0x0001,
+            a: 0b1111_1111,
+            ..CPU::default()
+        };
+        cpu.memory
+            .load_ram(vec![0x00, 0b1100_0000])
+            .expect("Failed to load ram");
+
+        arr(&mut cpu, &Addressing::Immediate);
+
+        assert_eq!(cpu.a, 0b0110_0000);
+        assert_eq!(cpu.flags.carry, true);
+        assert_eq!(cpu.flags.overflow, false);
+    }
+    #[test]
+    fn arr_ands_memory_then_rotates_right_and_clears_c_and_clears_v_if_bit_5_and_6_are_not_set() {
+        let mut cpu = CPU {
+            pc: 0x0001,
+            a: 0b1111_1111,
+            ..CPU::default()
+        };
+        cpu.memory
+            .load_ram(vec![0x00, 0b0000_0000])
+            .expect("Failed to load ram");
+
+        arr(&mut cpu, &Addressing::Immediate);
+
+        assert_eq!(cpu.a, 0b0000_0000);
+        assert_eq!(cpu.flags.carry, false);
+        assert_eq!(cpu.flags.overflow, false);
+    }
+    #[test]
+    fn arr_ands_memory_then_rotates_right_and_clears_c_and_sets_v_if_only_bit_5_is_set() {
+        let mut cpu = CPU {
+            pc: 0x0001,
+            a: 0b1111_1111,
+            ..CPU::default()
+        };
+        cpu.memory
+            .load_ram(vec![0x00, 0b0100_0000])
+            .expect("Failed to load ram");
+
+        arr(&mut cpu, &Addressing::Immediate);
+
+        assert_eq!(cpu.a, 0b0010_0000);
+        assert_eq!(cpu.flags.carry, false);
+        assert_eq!(cpu.flags.overflow, true);
+    }
+    #[test]
+    fn arr_ands_memory_then_rotates_right_and_sets_c_and_sets_v_if_only_bit_6_is_set() {
+        let mut cpu = CPU {
+            pc: 0x0001,
+            a: 0b1111_1111,
+            ..CPU::default()
+        };
+        cpu.memory
+            .load_ram(vec![0x00, 0b1000_0000])
+            .expect("Failed to load ram");
+
+        arr(&mut cpu, &Addressing::Immediate);
+
+        assert_eq!(cpu.a, 0b0100_0000);
+        assert_eq!(cpu.flags.carry, true);
+        assert_eq!(cpu.flags.overflow, true);
     }
 }
