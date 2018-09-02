@@ -32,6 +32,7 @@ impl Flags {
         self.carry = byte & 0b0000_0001 != 0;
         self.zero = byte & 0b0000_0010 != 0;
         self.interrupt_disable = byte & 0b0000_0100 != 0;
+        self.decimal = byte & 0b0000_1000 != 0;
         self.overflow = byte & 0b0100_0000 != 0;
         self.negative = byte & 0b1000_0000 != 0;
     }
