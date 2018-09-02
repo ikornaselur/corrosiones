@@ -146,7 +146,7 @@ pub fn arr(cpu: &mut CPU, addressing: &Addressing) -> u8 {
 ///
 /// * Immediate - 2 Cycles
 ///
-/// # Flags affectes
+/// # Flags affected
 ///
 /// * Negative
 /// * Zero
@@ -161,6 +161,39 @@ pub fn atx(cpu: &mut CPU, addressing: &Addressing) -> u8 {
 
     cpu.flags.set_zero_from_byte(cpu.a);
     cpu.flags.set_negative_from_byte(cpu.a);
+
+    cycles
+}
+
+/// And X index with accumulator, store the result in the X index and subtract the byte from memory
+/// from the X index (without borrow)
+///
+/// *Undocumented instruction*
+///
+/// # Supported addressing modes
+///
+/// * Immediate - 2 Cycles
+///
+/// # Flags affected
+///
+/// * Negative
+/// * Zero
+/// * Carry
+pub fn axs(cpu: &mut CPU, addressing: &Addressing) -> u8 {
+    let cycles = match addressing {
+        Addressing::Immediate => 2,
+        _ => panic!("AXS doesn't support {:?} addressing", addressing),
+    };
+
+    cpu.x &= cpu.a;
+
+    let byte = cpu.read_byte(&addressing, true);
+    let (result, carry) = cpu.x.overflowing_sub(byte);
+    cpu.x = result;
+
+    cpu.flags.set_negative_from_byte(cpu.x);
+    cpu.flags.set_zero_from_byte(cpu.x);
+    cpu.flags.set_carry(carry);
 
     cycles
 }
@@ -310,5 +343,22 @@ mod test {
 
         assert_eq!(cpu.a, 0b1010_0000);
         assert_eq!(cpu.x, 0b1010_0000);
+    }
+
+    #[test]
+    fn axs_ands_accumulator_with_x_and_subtracts_memory_from_x() {
+        let mut cpu = CPU {
+            a: 0b0000_1111,
+            x: 0b0101_0101,
+            ..CPU::default()
+        };
+        cpu.memory
+            .load_ram(vec![0b0000_0001])
+            .expect("Failed to load ram");
+
+        axs(&mut cpu, &Addressing::Immediate);
+
+        assert_eq!(cpu.a, 0b0000_1111);
+        assert_eq!(cpu.x, 0b0000_0100);
     }
 }
