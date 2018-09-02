@@ -15,7 +15,7 @@ pub fn php(cpu: &mut CPU) -> u8 {
     let cycles = 3;
 
     let flags = cpu.flags.as_byte();
-    cpu.push_stack(flags);
+    cpu.push_stack(flags | 0b0001_0000);
 
     cycles
 }
@@ -27,10 +27,11 @@ mod test {
     #[test]
     fn pha_pushes_accumulator_on_stack() {
         let mut cpu = CPU {
+            sp: 0xFF,
             a: 0xAB,
             ..CPU::default()
         };
-        cpu.memory.load_ram(Vec::new());
+        cpu.memory.load_ram(Vec::new()).expect("Failed to load ram");
 
         pha(&mut cpu);
 
@@ -40,10 +41,11 @@ mod test {
     #[test]
     fn php_pushes_flags_on_stack() {
         let mut cpu = CPU {
+            sp: 0xFF,
             a: 0xAB,
             ..CPU::default()
         };
-        cpu.memory.load_ram(Vec::new());
+        cpu.memory.load_ram(Vec::new()).expect("Failed to load ram");
         cpu.flags.set_carry(true);
         cpu.flags.set_zero(true);
         cpu.flags.set_overflow(true);
@@ -51,6 +53,6 @@ mod test {
 
         php(&mut cpu);
 
-        assert_eq!(cpu.raw_read_byte(0x01FF), 0b1100_0011);
+        assert_eq!(cpu.raw_read_byte(0x01FF), cpu.flags.as_byte() | 0b0001_0000);
     }
 }

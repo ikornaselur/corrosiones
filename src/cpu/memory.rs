@@ -5,15 +5,15 @@
 const RAM_SIZE: usize = 0x0800;
 const IO_SIZE: usize = 0x0028;
 // const EXPANSION_ROM_SIZE: usize = 0x1980;
-// const SRAM_SIZE: usize = 0x2000;
-// const ROM_SIZE: usize = 0x2000;
+const SRAM_SIZE: usize = 0x2000;
+const ROM_SIZE: usize = 0x8000;
 
 pub struct Memory {
     ram: Vec<u8>,
     io: Vec<u8>,
     expansion_rom: Vec<u8>,
-    sram: Vec<u8>,
-    rom: Vec<u8>,
+    pub(crate) sram: Vec<u8>,
+    pub(crate) rom: Vec<u8>,
 }
 
 impl Default for Memory {
@@ -40,25 +40,58 @@ impl Memory {
     ///
     /// # Arguments
     ///
-    /// * `ram` - The ram to load into memory
+    /// * `ram` - The RAM to load into memory
     ///
     /// # Example
     ///
     /// ```
     /// let mut memory = corrosiones::cpu::memory::Memory::new();
     ///
-    /// memory.load_ram(vec![0xDE, 0xAD, 0xBE, 0xEF]);
+    /// memory.load_ram(vec![0xDE, 0xAD, 0xBE, 0xEF]).expect("Failed to load ram");
     /// ```
-    pub fn load_ram(&mut self, ram: Vec<u8>) {
+    pub fn load_ram(&mut self, ram: Vec<u8>) -> Result<(), &'static str> {
         if ram.len() > RAM_SIZE {
-            panic!(
-                "Ram too long, can't exceed 0x{:04X?}. Was: {:04X?}",
-                RAM_SIZE,
-                ram.len()
-            )
+            return Err("RAM too big");
         }
         self.ram = ram;
         self.ram.resize(RAM_SIZE, 0x00);
+
+        Ok(())
+    }
+
+    pub fn load_sram(&mut self, sram: Vec<u8>) -> Result<(), &'static str> {
+        if sram.len() > SRAM_SIZE {
+            return Err("RAM too big");
+        }
+        self.sram = sram;
+        self.sram.resize(SRAM_SIZE, 0x00);
+
+        Ok(())
+    }
+
+    /// Load ROM into memory
+    ///
+    /// The provided ROM has to be exactly 0x8000 bytes
+    ///
+    /// # Arguments
+    ///
+    /// * `rom` - The ROM to load into memory
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let mut memory = corrosiones::cpu::memory::Memory::new();
+    ///
+    /// memory.load_rom(vec![0xFF; 0x8000]).expect("Failed to load rom");
+    /// ```
+    pub fn load_rom(&mut self, rom: Vec<u8>) -> Result<(), &'static str> {
+        if rom.len() != ROM_SIZE {
+            return Err("Invalid ROM size");
+        }
+        self.rom = rom;
+        self.rom.resize(ROM_SIZE, 0x00);
+
+        Ok(())
     }
 
     /// Read from the memory
@@ -74,25 +107,25 @@ impl Memory {
     /// ```
     /// let mut memory = corrosiones::cpu::memory::Memory::new();
     ///
-    /// memory.load_ram(vec![0xDE, 0xAD, 0xBE, 0xEF]);
+    /// memory.load_ram(vec![0xDE, 0xAD, 0xBE, 0xEF]).expect("Failed to load ram");
     ///
     /// assert_eq!(memory.read(0x0001), 0xAD);
     /// assert_eq!(memory.read(0x1001), 0xAD); // Mirrored RAM read
     /// ```
     pub fn read(&self, addr: u16) -> u8 {
         let addr = usize::from(addr);
-        match addr {
-            0x0000...0x07FF => self.ram[addr],
-            0x0800...0x0FFF => self.ram[addr - 0x0800],
-            0x1000...0x17FF => self.ram[addr - 0x1000],
-            0x1800...0x1FFF => self.ram[addr - 0x1800],
+        let result = match addr {
+            0x0000...0x1FFF => self.ram[addr % 0x0800],
             0x2000...0x3FFF => self.io[(addr - 0x2000) % 0x0008],
             0x4000...0x401F => self.io[addr - 0x4000 + 0x0008],
             0x4020...0x5FFF => self.expansion_rom[addr - 0x4020],
             0x6000...0x7FFF => self.sram[addr - 0x6000],
             0x8000...0xFFFF => self.rom[addr - 0x8000],
             _ => panic!("Reading from 0x{:04X?} is unsupported", addr),
-        }
+        };
+
+        //println!("0x{:04X?}: 0x{:02X?}", addr, result);
+        result
     }
 
     /// Write to the memory
@@ -106,7 +139,7 @@ impl Memory {
     /// ```
     /// let mut memory = corrosiones::cpu::memory::Memory::new();
     ///
-    /// memory.load_ram(vec![0x00, 0x00]);
+    /// memory.load_ram(vec![0x00, 0x00]).expect("Failed to load ram");
     ///
     /// memory.write(0x0001, 0xAB);
     ///
@@ -114,11 +147,12 @@ impl Memory {
     /// ```
     pub fn write(&mut self, addr: u16, byte: u8) {
         let addr = usize::from(addr);
+        // println!("Writing into 0x{:04X?}", addr);
         match addr {
-            0x0000...0x07FF => self.ram[addr] = byte,
-            0x0800...0x0FFF => self.ram[addr - 0x0800] = byte,
-            0x1000...0x17FF => self.ram[addr - 0x1000] = byte,
-            0x1800...0x1FFF => self.ram[addr - 0x1800] = byte,
+            0x0000...0x1FFF => self.ram[addr % 0x0800] = byte,
+            0x2000...0x3FFF => self.io[(addr - 0x2000) % 0x0008] = byte,
+            0x4000...0x401F => self.io[addr - 0x4000 + 0x0008] = byte,
+            0x6000...0x7FFF => self.sram[addr - 0x6000] = byte,
             _ => panic!("Unable to write to 0x{:04X?}", addr),
         }
     }
@@ -131,7 +165,9 @@ mod test {
     #[test]
     fn load_ram() {
         let mut memory = Memory::new();
-        memory.load_ram(vec![0x01, 0x02, 0x03, 0x04]);
+        memory
+            .load_ram(vec![0x01, 0x02, 0x03, 0x04])
+            .expect("Failed to load ram");
 
         assert_eq!(memory.ram[0], 0x01);
         assert_eq!(memory.ram[1], 0x02);

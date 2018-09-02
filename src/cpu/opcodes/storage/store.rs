@@ -91,7 +91,9 @@ mod test {
             a: 0xAB,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0xFF, 0x01, 0x00]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0xFF, 0x01, 0x00])
+            .expect("Failed to load ram");
 
         let cycles = sta(&mut cpu, &Addressing::Absolute);
 
@@ -108,7 +110,8 @@ mod test {
             ..CPU::default()
         };
         cpu.memory
-            .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA, 0xBB]);
+            .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA, 0xBB])
+            .expect("Failed to load ram");
 
         let cycles = sta(&mut cpu, &Addressing::AbsoluteX);
 
@@ -125,7 +128,8 @@ mod test {
             ..CPU::default()
         };
         cpu.memory
-            .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA, 0xBB]);
+            .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA, 0xBB])
+            .expect("Failed to load ram");
 
         let cycles = sta(&mut cpu, &Addressing::AbsoluteY);
 
@@ -142,7 +146,8 @@ mod test {
             ..CPU::default()
         };
         cpu.memory
-            .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA, 0x01]);
+            .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA, 0x01])
+            .expect("Failed to load ram");
 
         let cycles = sta(&mut cpu, &Addressing::IndirectX);
 
@@ -159,7 +164,8 @@ mod test {
             ..CPU::default()
         };
         cpu.memory
-            .load_ram(vec![0xFF, 0xFF, 0xFF, 0x07, 0x00, 0xFF, 0xAA, 0x01]);
+            .load_ram(vec![0xFF, 0xFF, 0xFF, 0x07, 0x00, 0xFF, 0xAA, 0x01])
+            .expect("Failed to load ram");
 
         let cycles = sta(&mut cpu, &Addressing::IndirectY);
 
@@ -174,7 +180,9 @@ mod test {
             a: 0xAB,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0x01, 0xFF]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0x01, 0xFF])
+            .expect("Failed to load ram");
 
         let cycles = sta(&mut cpu, &Addressing::ZeroPage);
 
@@ -190,7 +198,9 @@ mod test {
             x: 0x02,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0x01, 0xFF]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0x01, 0xFF])
+            .expect("Failed to load ram");
 
         let cycles = sta(&mut cpu, &Addressing::ZeroPageX);
 
@@ -205,7 +215,9 @@ mod test {
             x: 0xAB,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0xFF, 0x01, 0x00]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0xFF, 0x01, 0x00])
+            .expect("Failed to load ram");
 
         let cycles = stx(&mut cpu, &Addressing::Absolute);
 
@@ -220,7 +232,9 @@ mod test {
             x: 0xAB,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0x01, 0xFF]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0x01, 0xFF])
+            .expect("Failed to load ram");
 
         let cycles = stx(&mut cpu, &Addressing::ZeroPage);
 
@@ -236,7 +250,9 @@ mod test {
             y: 0x02,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0x01, 0xFF]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0x01, 0xFF])
+            .expect("Failed to load ram");
 
         let cycles = stx(&mut cpu, &Addressing::ZeroPageY);
 
@@ -251,7 +267,9 @@ mod test {
             y: 0xAB,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0xFF, 0x01, 0x00]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0xFF, 0x01, 0x00])
+            .expect("Failed to load ram");
 
         let cycles = sty(&mut cpu, &Addressing::Absolute);
 
@@ -266,7 +284,9 @@ mod test {
             y: 0xAB,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0x01, 0xFF]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0x01, 0xFF])
+            .expect("Failed to load ram");
 
         let cycles = sty(&mut cpu, &Addressing::ZeroPage);
 
@@ -282,7 +302,9 @@ mod test {
             x: 0x02,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0x01, 0xFF]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0x01, 0xFF])
+            .expect("Failed to load ram");
 
         let cycles = sty(&mut cpu, &Addressing::ZeroPageX);
 

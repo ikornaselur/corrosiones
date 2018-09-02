@@ -86,7 +86,9 @@ mod test {
             a: 0b1111_0000,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0b1010_1010, 0xFF]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0b1010_1010, 0xFF])
+            .expect("Failed to load ram");
 
         ora(&mut cpu, &Addressing::Immediate);
 
@@ -100,7 +102,9 @@ mod test {
             a: 0b1111_0000,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0b1010_1010, 0xFF]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0b1010_1010, 0xFF])
+            .expect("Failed to load ram");
 
         eor(&mut cpu, &Addressing::Immediate);
 

@@ -43,10 +43,10 @@ pub fn lda(cpu: &mut CPU, addressing: &Addressing) -> u8 {
 /// # Supported addressing modes
 ///
 /// * Absolute - 4 Cycles
-/// * Absolute X - 4* Cycles
+/// * Absolute Y - 4* Cycles
 /// * Immediate - 2 Cycles
 /// * Zero Page - 3 Cycles
-/// * Zero Page X - 4 Cycles
+/// * Zero Page Y - 4 Cycles
 ///
 /// \* Add 1 if page boundary is crossed
 ///
@@ -56,7 +56,7 @@ pub fn lda(cpu: &mut CPU, addressing: &Addressing) -> u8 {
 /// * Zero
 pub fn ldx(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let cycles = match addressing {
-        Addressing::Absolute | Addressing::AbsoluteX | Addressing::ZeroPageX => 4,
+        Addressing::Absolute | Addressing::AbsoluteY | Addressing::ZeroPageY => 4,
         Addressing::Immediate => 2,
         Addressing::ZeroPage => 3,
         _ => panic!("LDX doesn't support {:?} addressing", addressing),
@@ -64,6 +64,34 @@ pub fn ldx(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     cpu.x = cpu.read_byte(&addressing, true);
     cpu.flags.set_zero_from_byte(cpu.x);
     cpu.flags.set_negative_from_byte(cpu.x);
+    cycles
+}
+
+/// Load X Index and Accumulator with memory
+///
+/// *Undocumented instruction*
+///
+/// # Supported addressing modes
+///
+/// * Absolute - 4 Cycles
+/// * Absolute Y - 4* Cycles
+/// * Indirect X - 6 Cycles
+/// * Indirect Y - 5* Cycles
+/// * Zero Page - 3 Cycles
+/// * Zero Page Y - 4 Cycles
+pub fn lax(cpu: &mut CPU, addressing: &Addressing) -> u8 {
+    let cycles = match addressing {
+        Addressing::Absolute | Addressing::AbsoluteY | Addressing::ZeroPageY => 4,
+        Addressing::IndirectX => 6,
+        Addressing::IndirectY => 5,
+        Addressing::ZeroPage => 3,
+        _ => panic!("LAX doesn't support {:?} addressing", addressing),
+    };
+    let byte = cpu.read_byte(&addressing, true);
+    cpu.x = byte;
+    cpu.a = byte;
+    cpu.flags.set_zero_from_byte(byte);
+    cpu.flags.set_negative_from_byte(byte);
     cycles
 }
 
@@ -101,13 +129,14 @@ mod test {
     use super::*;
 
     #[test]
-    fn lda_immediate() {
+    fn lda_loads_accumulator() {
         let mut cpu = CPU {
             pc: 0x0002,
             ..CPU::default()
         };
         cpu.memory
-            .load_ram(vec![0x01, 0x02, 0x03, 0x04, 0x05, 0x06]);
+            .load_ram(vec![0x01, 0x02, 0x03, 0x04, 0x05, 0x06])
+            .expect("Failed to load ram");
 
         let cycles = lda(&mut cpu, &Addressing::Immediate);
 
@@ -116,136 +145,14 @@ mod test {
     }
 
     #[test]
-    fn lda_zeropage() {
-        let mut cpu = CPU {
-            pc: 0x0002,
-            ..CPU::default()
-        };
-        cpu.memory.load_ram(vec![0x00, 0xDE, 0x01, 0x00]);
-
-        let cycles = lda(&mut cpu, &Addressing::ZeroPage);
-
-        assert_eq!(cycles, 3);
-        assert_eq!(cpu.a, 0xDE);
-    }
-
-    #[test]
-    fn lda_zeropage_x() {
-        let mut cpu = CPU {
-            pc: 0x0002,
-            x: 0x02,
-            ..CPU::default()
-        };
-        cpu.memory.load_ram(vec![0x00, 0xDE, 0x01, 0xAD]);
-
-        let cycles = lda(&mut cpu, &Addressing::ZeroPageX);
-
-        assert_eq!(cycles, 4);
-        assert_eq!(cpu.a, 0xAD);
-    }
-
-    #[test]
-    fn lda_zeropage_x_wrapping() {
-        let mut cpu = CPU {
-            pc: 0x0002,
-            x: 0xFF,
-            ..CPU::default()
-        };
-        cpu.memory.load_ram(vec![0xAA, 0xDE, 0x01, 0xAD]);
-
-        let cycles = lda(&mut cpu, &Addressing::ZeroPageX);
-
-        assert_eq!(cycles, 4);
-        assert_eq!(cpu.a, 0xAA);
-    }
-
-    #[test]
-    fn lda_absolute() {
+    fn ldx_loads_x_index() {
         let mut cpu = CPU {
             pc: 0x0002,
             ..CPU::default()
         };
         cpu.memory
-            .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA]);
-
-        let cycles = lda(&mut cpu, &Addressing::Absolute);
-
-        assert_eq!(cycles, 4);
-        assert_eq!(cpu.a, 0xAA);
-    }
-
-    #[test]
-    fn lda_absolute_x() {
-        let mut cpu = CPU {
-            pc: 0x0002,
-            x: 0x01,
-            ..CPU::default()
-        };
-        cpu.memory
-            .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA, 0xBB]);
-
-        let cycles = lda(&mut cpu, &Addressing::AbsoluteX);
-
-        assert_eq!(cycles, 4);
-        assert_eq!(cpu.a, 0xBB);
-    }
-
-    #[test]
-    fn lda_absolute_y() {
-        let mut cpu = CPU {
-            pc: 0x0002,
-            y: 0x02,
-            ..CPU::default()
-        };
-        cpu.memory
-            .load_ram(vec![0xFF, 0xFF, 0x05, 0x00, 0xFF, 0xAA, 0xBB, 0xCC]);
-
-        let cycles = lda(&mut cpu, &Addressing::AbsoluteY);
-
-        assert_eq!(cycles, 4);
-        assert_eq!(cpu.a, 0xCC);
-    }
-
-    #[test]
-    fn lda_indirect_x() {
-        let mut cpu = CPU {
-            pc: 0x0002,
-            x: 0x01,
-            ..CPU::default()
-        };
-        cpu.memory
-            .load_ram(vec![0xFF, 0xAA, 0x04, 0xFF, 0xFF, 0x01, 0x00]);
-
-        let cycles = lda(&mut cpu, &Addressing::IndirectX);
-
-        assert_eq!(cycles, 6);
-        assert_eq!(cpu.a, 0xAA);
-    }
-
-    #[test]
-    fn lda_indirect_y() {
-        let mut cpu = CPU {
-            pc: 0x0003,
-            y: 0x01,
-            ..CPU::default()
-        };
-        cpu.memory
-            .load_ram(vec![0xFF, 0xFF, 0xAA, 0x06, 0xFF, 0xFF, 0x01, 0x00]);
-
-        let cycles = lda(&mut cpu, &Addressing::IndirectY);
-
-        assert_eq!(cycles, 5);
-        assert_eq!(cpu.a, 0xAA);
-    }
-
-    #[test]
-    fn ldx_immediate() {
-        let mut cpu = CPU {
-            pc: 0x0002,
-            ..CPU::default()
-        };
-        cpu.memory
-            .load_ram(vec![0x01, 0x02, 0x03, 0x04, 0x05, 0x06]);
+            .load_ram(vec![0x01, 0x02, 0x03, 0x04, 0x05, 0x06])
+            .expect("Failed to load ram");
 
         let cycles = ldx(&mut cpu, &Addressing::Immediate);
 
@@ -254,105 +161,35 @@ mod test {
     }
 
     #[test]
-    fn ldx_zeropage() {
-        let mut cpu = CPU {
-            pc: 0x0002,
-            ..CPU::default()
-        };
-        cpu.memory.load_ram(vec![0x00, 0xDE, 0x01, 0x00]);
-
-        let cycles = ldx(&mut cpu, &Addressing::ZeroPage);
-
-        assert_eq!(cycles, 3);
-        assert_eq!(cpu.x, 0xDE);
-    }
-
-    #[test]
-    fn ldx_zeropage_x() {
-        let mut cpu = CPU {
-            pc: 0x0002,
-            x: 0x02,
-            ..CPU::default()
-        };
-        cpu.memory.load_ram(vec![0x00, 0xDE, 0x01, 0xAD]);
-
-        let cycles = ldx(&mut cpu, &Addressing::ZeroPageX);
-
-        assert_eq!(cycles, 4);
-        assert_eq!(cpu.x, 0xAD);
-    }
-
-    #[test]
-    fn ldx_zeropage_x_wrapping() {
-        let mut cpu = CPU {
-            pc: 0x0002,
-            x: 0xFF,
-            ..CPU::default()
-        };
-        cpu.memory.load_ram(vec![0xAA, 0xDE, 0x01, 0xAD]);
-
-        let cycles = ldx(&mut cpu, &Addressing::ZeroPageX);
-
-        assert_eq!(cycles, 4);
-        assert_eq!(cpu.x, 0xAA);
-    }
-
-    #[test]
-    fn ldy_immediate() {
+    fn lax_loads_both_accumulator_and_x_index() {
         let mut cpu = CPU {
             pc: 0x0002,
             ..CPU::default()
         };
         cpu.memory
-            .load_ram(vec![0x01, 0x02, 0x03, 0x04, 0x05, 0x06]);
+            .load_ram(vec![0x00, 0xAB, 0x01, 0x00])
+            .expect("Failed to load ram");
+
+        let cycles = lax(&mut cpu, &Addressing::Absolute);
+
+        assert_eq!(cycles, 4);
+        assert_eq!(cpu.x, 0xAB);
+        assert_eq!(cpu.a, 0xAB);
+    }
+
+    #[test]
+    fn ldy_loads_y_index() {
+        let mut cpu = CPU {
+            pc: 0x0002,
+            ..CPU::default()
+        };
+        cpu.memory
+            .load_ram(vec![0x01, 0x02, 0x03, 0x04, 0x05, 0x06])
+            .expect("Failed to load ram");
 
         let cycles = ldy(&mut cpu, &Addressing::Immediate);
 
         assert_eq!(cycles, 2);
         assert_eq!(cpu.y, 0x03);
-    }
-
-    #[test]
-    fn ldy_zeropage() {
-        let mut cpu = CPU {
-            pc: 0x0002,
-            ..CPU::default()
-        };
-        cpu.memory.load_ram(vec![0x00, 0xDE, 0x01, 0x00]);
-
-        let cycles = ldy(&mut cpu, &Addressing::ZeroPage);
-
-        assert_eq!(cycles, 3);
-        assert_eq!(cpu.y, 0xDE);
-    }
-
-    #[test]
-    fn ldy_zeropage_x() {
-        let mut cpu = CPU {
-            pc: 0x0002,
-            x: 0x02,
-            ..CPU::default()
-        };
-        cpu.memory.load_ram(vec![0x00, 0xDE, 0x01, 0xAD]);
-
-        let cycles = ldy(&mut cpu, &Addressing::ZeroPageX);
-
-        assert_eq!(cycles, 4);
-        assert_eq!(cpu.y, 0xAD);
-    }
-
-    #[test]
-    fn ldy_zeropage_x_wrapping() {
-        let mut cpu = CPU {
-            pc: 0x0002,
-            x: 0xFF,
-            ..CPU::default()
-        };
-        cpu.memory.load_ram(vec![0xAA, 0xDE, 0x01, 0xAD]);
-
-        let cycles = ldy(&mut cpu, &Addressing::ZeroPageX);
-
-        assert_eq!(cycles, 4);
-        assert_eq!(cpu.y, 0xAA);
     }
 }

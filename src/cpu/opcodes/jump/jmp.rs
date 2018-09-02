@@ -24,7 +24,13 @@ pub fn jmp(cpu: &mut CPU, addressing: &Addressing) -> u8 {
         Addressing::Absolute => cpu.read_next_double(true),
         Addressing::Indirect => {
             let indirect_addr = cpu.read_next_double(true);
-            cpu.read_double(indirect_addr)
+            if indirect_addr as u8 == 0xFF {
+                let lsb = cpu.raw_read_byte(indirect_addr);
+                let msb = cpu.raw_read_byte(indirect_addr & !0xFF);
+                (u16::from(msb) << 8) | u16::from(lsb)
+            } else {
+                cpu.read_double(indirect_addr)
+            }
         }
         _ => panic!("JMP doesn't support {:?} addressing", addressing),
     };
@@ -67,7 +73,9 @@ mod test {
             pc: 0x0002,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0xAD, 0xDE]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0xAD, 0xDE])
+            .expect("Failed to load ram");
 
         jmp(&mut cpu, &Addressing::Absolute);
 
@@ -80,11 +88,35 @@ mod test {
             pc: 0x0003,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xAD, 0xDE, 0x01, 0x00]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xAD, 0xDE, 0x01, 0x00])
+            .expect("Failed to load ram");
 
         jmp(&mut cpu, &Addressing::Indirect);
 
         assert_eq!(cpu.pc, 0xDEAD);
+    }
+
+    #[test]
+    fn jmp_indirect_boundary_bug() {
+        let mut cpu = CPU {
+            pc: 0x0002,
+            ..CPU::default()
+        };
+        cpu.memory
+            .load_ram(vec![0xAA; 257])
+            .expect("Failed to load ram");
+        // The address to read from
+        cpu.raw_write_byte(0x0002, 0xFF);
+        cpu.raw_write_byte(0x0003, 0x00);
+        // The PC bytes
+        cpu.raw_write_byte(0x0000, 0x11);
+        cpu.raw_write_byte(0x00FF, 0x22);
+        cpu.raw_write_byte(0x0100, 0x33);
+
+        jmp(&mut cpu, &Addressing::Indirect);
+
+        assert_eq!(cpu.pc, 0x1122);
     }
 
     #[test]
@@ -93,13 +125,15 @@ mod test {
             pc: 0x0001,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xAD, 0xDE, 0xFF]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xAD, 0xDE, 0xFF])
+            .expect("Failed to load ram");
 
         jsr(&mut cpu, &Addressing::Absolute);
 
         assert_eq!(cpu.pc, 0xDEAD);
-        assert_eq!(cpu.sp, 0xFD);
-        assert_eq!(cpu.raw_read_byte(0x01FF), 0x00);
-        assert_eq!(cpu.raw_read_byte(0x01FE), 0x02);
+        assert_eq!(cpu.sp, 0xFB);
+        assert_eq!(cpu.raw_read_byte(0x01FD), 0x00);
+        assert_eq!(cpu.raw_read_byte(0x01FC), 0x02);
     }
 }

@@ -21,7 +21,7 @@ pub fn inc(cpu: &mut CPU, addressing: &Addressing) -> u8 {
         _ => panic!("INC doesn't support {:?} addressing", addressing),
     };
 
-    let byte = cpu.update_byte(&addressing, |x| x.wrapping_add(1), true);
+    let (byte, _) = cpu.update_byte(&addressing, |x| (x.wrapping_add(1), None), true);
 
     cpu.flags.set_zero_from_byte(byte);
     cpu.flags.set_negative_from_byte(byte);
@@ -71,7 +71,9 @@ mod test {
             pc: 0x0002,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xA1, 0x01, 0x00]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xA1, 0x01, 0x00])
+            .expect("Failed to load ram");
 
         inc(&mut cpu, &Addressing::Absolute);
 
@@ -84,7 +86,9 @@ mod test {
             pc: 0x0002,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0x01, 0x00]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0x01, 0x00])
+            .expect("Failed to load ram");
 
         inc(&mut cpu, &Addressing::Absolute);
 

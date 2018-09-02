@@ -8,7 +8,7 @@ pub fn rti(cpu: &mut CPU) -> u8 {
     let lsb = cpu.pop_stack();
     let msb = cpu.pop_stack();
 
-    cpu.set_pc((u16::from(msb) << 8) + u16::from(lsb));
+    cpu.set_pc((u16::from(msb) << 8) | u16::from(lsb));
     cpu.flags.set_from_byte(flags);
 
     cycles
@@ -21,7 +21,9 @@ pub fn rts(cpu: &mut CPU) -> u8 {
     let lsb = cpu.pop_stack();
     let msb = cpu.pop_stack();
 
-    cpu.set_pc((u16::from(msb) << 8) + u16::from(lsb));
+    let pc = ((u16::from(msb) << 8) | u16::from(lsb)).wrapping_add(1);
+
+    cpu.set_pc(pc);
 
     cycles
 }
@@ -36,7 +38,7 @@ mod test {
             sp: 0xF0,
             ..CPU::default()
         };
-        cpu.memory.load_ram(Vec::new());
+        cpu.memory.load_ram(Vec::new()).expect("Failed to load ram");
         cpu.raw_write_byte(0x01F1, 0b1100_0011);
         cpu.raw_write_byte(0x01F2, 0xAD);
         cpu.raw_write_byte(0x01F3, 0xDE);
@@ -57,8 +59,8 @@ mod test {
             sp: 0xF0,
             ..CPU::default()
         };
-        cpu.memory.load_ram(Vec::new());
-        cpu.raw_write_byte(0x01F1, 0xAD);
+        cpu.memory.load_ram(Vec::new()).expect("Failed to load ram");
+        cpu.raw_write_byte(0x01F1, 0xAC);
         cpu.raw_write_byte(0x01F2, 0xDE);
 
         rts(&mut cpu);

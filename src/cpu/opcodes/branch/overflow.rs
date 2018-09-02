@@ -13,7 +13,7 @@ pub fn bvc(cpu: &mut CPU) -> u8 {
     if cpu.flags.overflow {
         2
     } else {
-        cpu.offset_pc(u16::from(offset));
+        cpu.offset_pc(offset);
         3 // 4 if new page
     }
 }
@@ -29,7 +29,7 @@ pub fn bvs(cpu: &mut CPU) -> u8 {
     let offset = cpu.read_next_byte(true);
 
     if cpu.flags.overflow {
-        cpu.offset_pc(u16::from(offset));
+        cpu.offset_pc(offset);
         3 // 4 if new page
     } else {
         2
@@ -46,7 +46,9 @@ mod test {
             pc: 0x0002,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0x05]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0x05])
+            .expect("Failed to load ram");
         cpu.flags.overflow = false;
 
         bvc(&mut cpu);
@@ -60,7 +62,9 @@ mod test {
             pc: 0x0002,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0x05]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0x05])
+            .expect("Failed to load ram");
         cpu.flags.overflow = true;
 
         bvc(&mut cpu);
@@ -74,7 +78,9 @@ mod test {
             pc: 0x0002,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0x05]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0x05])
+            .expect("Failed to load ram");
         cpu.flags.overflow = false;
 
         bvs(&mut cpu);
@@ -88,7 +94,9 @@ mod test {
             pc: 0x0002,
             ..CPU::default()
         };
-        cpu.memory.load_ram(vec![0xFF, 0xFF, 0x05]);
+        cpu.memory
+            .load_ram(vec![0xFF, 0xFF, 0x05])
+            .expect("Failed to load ram");
         cpu.flags.overflow = true;
 
         bvs(&mut cpu);
