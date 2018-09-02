@@ -134,6 +134,8 @@ pub fn arr(cpu: &mut CPU, addressing: &Addressing) -> u8 {
 
     cpu.flags.set_carry(bit6);
     cpu.flags.set_overflow(bit5 ^ bit6);
+    cpu.flags.set_zero_from_byte(cpu.a);
+    cpu.flags.set_negative_from_byte(cpu.a);
 
     cycles
 }
