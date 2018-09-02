@@ -41,3 +41,8 @@ fn basics() {
 fn implied() {
     run_blargg_test("tests/instr_test_v5/02-implied.nes");
 }
+
+#[test]
+fn immediate() {
+    run_blargg_test("tests/instr_test_v5/03-immediate.nes");
+}
