@@ -145,7 +145,7 @@ impl Memory {
     ///
     /// assert_eq!(memory.read(0x0001), 0xAB);
     /// ```
-    pub(crate) fn write(&mut self, addr: u16, byte: u8) {
+    pub fn write(&mut self, addr: u16, byte: u8) {
         let addr = usize::from(addr);
         // println!("Writing into 0x{:04X?}", addr);
         match addr {

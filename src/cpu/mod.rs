@@ -38,7 +38,7 @@ pub(crate) use cpu::flags::Flags;
 pub(crate) use cpu::memory::Memory;
 
 pub struct CPU {
-    pub(crate) memory: Memory,
+    pub memory: Memory,
     flags: Flags,
     pc: u16,
     sp: u8,
@@ -267,7 +267,7 @@ impl CPU {
     pub fn step(&mut self, debug: bool) -> Option<u8> {
         if debug {
             println!(
-                "{:04X?} A: {:02X?} X: {:02X?} Y: {:02X?} P: {:02X?} SP: {:02X?}",
+                "{:04X?} A:{:02X?} X:{:02X?} Y:{:02X?} P:{:02X?} SP:{:02X?}",
                 self.pc,
                 self.a,
                 self.x,
