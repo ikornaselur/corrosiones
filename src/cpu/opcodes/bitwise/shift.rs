@@ -231,24 +231,7 @@ mod test {
     fn slo_shifts_left_in_memory_and_then_ors_with_accumulator() {
         let mut cpu = CPU {
             a: 0b0101_1010,
-            pc: 0x0001,
-            ..CPU::default()
-        };
-        cpu.memory
-            .load_ram(vec![0xFF, 0b0000_1010, 0x01, 0x00])
-            .expect("Failed to load ram");
-
-        slo(&mut cpu, &Addressing::Absolute);
-
-        assert_eq!(cpu.raw_read_byte(0x0001), 0b0000_0101);
-        assert_eq!(cpu.a, 0b0101_1111);
-    }
-
-    #[test]
-    fn sre_shifts_right_in_memory_and_then_eors_with_accumulator() {
-        let mut cpu = CPU {
-            a: 0b0101_1010,
-            pc: 0x0001,
+            pc: 0x0002,
             ..CPU::default()
         };
         cpu.memory
@@ -258,6 +241,23 @@ mod test {
         slo(&mut cpu, &Addressing::Absolute);
 
         assert_eq!(cpu.raw_read_byte(0x0001), 0b0001_0100);
-        assert_eq!(cpu.a, 0b0100_1110);
+        assert_eq!(cpu.a, 0b0101_1110);
+    }
+
+    #[test]
+    fn sre_shifts_right_in_memory_and_then_eors_with_accumulator() {
+        let mut cpu = CPU {
+            a: 0b0101_1111,
+            pc: 0x0002,
+            ..CPU::default()
+        };
+        cpu.memory
+            .load_ram(vec![0xFF, 0b0000_1010, 0x01, 0x00])
+            .expect("Failed to load ram");
+
+        sre(&mut cpu, &Addressing::Absolute);
+
+        assert_eq!(cpu.raw_read_byte(0x0001), 0b0000_0101);
+        assert_eq!(cpu.a, 0b0101_1010);
     }
 }
