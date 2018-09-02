@@ -13,7 +13,7 @@ pub fn bvc(cpu: &mut CPU) -> u8 {
     if cpu.flags.overflow {
         2
     } else {
-        cpu.offset_pc(u16::from(offset));
+        cpu.offset_pc(offset);
         3 // 4 if new page
     }
 }
@@ -29,7 +29,7 @@ pub fn bvs(cpu: &mut CPU) -> u8 {
     let offset = cpu.read_next_byte(true);
 
     if cpu.flags.overflow {
-        cpu.offset_pc(u16::from(offset));
+        cpu.offset_pc(offset);
         3 // 4 if new page
     } else {
         2

@@ -4,7 +4,7 @@ use cpu::{Addressing, CPU};
 ///
 /// The double argument makes the CPU skip the next byte, this is an *undocumented feature*
 pub fn nop(cpu: &mut CPU, size: usize, addressing: &Addressing) -> u8 {
-    cpu.offset_pc(size as u16);
+    cpu.offset_pc(size as u8);
 
     match addressing {
         Addressing::Immediate => 2,
