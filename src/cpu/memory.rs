@@ -114,7 +114,7 @@ impl Memory {
     /// ```
     pub fn read(&self, addr: u16) -> u8 {
         let addr = usize::from(addr);
-        let result = match addr {
+        match addr {
             0x0000...0x1FFF => self.ram[addr % 0x0800],
             0x2000...0x3FFF => self.io[(addr - 0x2000) % 0x0008],
             0x4000...0x401F => self.io[addr - 0x4000 + 0x0008],
@@ -122,10 +122,7 @@ impl Memory {
             0x6000...0x7FFF => self.sram[addr - 0x6000],
             0x8000...0xFFFF => self.rom[addr - 0x8000],
             _ => panic!("Reading from 0x{:04X?} is unsupported", addr),
-        };
-
-        //println!("0x{:04X?}: 0x{:02X?}", addr, result);
-        result
+        }
     }
 
     /// Write to the memory
@@ -147,7 +144,6 @@ impl Memory {
     /// ```
     pub fn write(&mut self, addr: u16, byte: u8) {
         let addr = usize::from(addr);
-        // println!("Writing into 0x{:04X?}", addr);
         match addr {
             0x0000...0x1FFF => self.ram[addr % 0x0800] = byte,
             0x2000...0x3FFF => self.io[(addr - 0x2000) % 0x0008] = byte,

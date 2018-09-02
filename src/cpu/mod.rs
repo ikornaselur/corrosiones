@@ -206,9 +206,9 @@ impl CPU {
 
     pub fn offset_pc(&mut self, offset: u8) {
         if offset & 0x80 == 0 {
-            self.pc += offset as u16;
+            self.pc += u16::from(offset);
         } else {
-            self.pc -= (!offset + 1) as u16;
+            self.pc -= u16::from(!offset + 1);
         }
     }
 

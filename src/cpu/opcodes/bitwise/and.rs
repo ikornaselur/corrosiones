@@ -90,7 +90,7 @@ pub fn asr(cpu: &mut CPU, addressing: &Addressing) -> u8 {
 
     cpu.flags.set_carry(cpu.a & 1 == 1);
 
-    cpu.a = cpu.a >> 1;
+    cpu.a >>= 1;
     cpu.flags.set_zero_from_byte(cpu.a);
     cpu.flags.set_negative(false);
 
