@@ -2,7 +2,6 @@ pub mod addressing;
 pub mod flags;
 pub mod memory;
 pub mod opcodes;
-pub mod utils;
 
 use std::error::Error;
 use std::fs::File;
