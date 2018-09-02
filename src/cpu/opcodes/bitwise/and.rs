@@ -187,15 +187,15 @@ pub fn axs(cpu: &mut CPU, addressing: &Addressing) -> u8 {
         _ => panic!("AXS doesn't support {:?} addressing", addressing),
     };
 
-    cpu.x &= cpu.a;
-
     let byte = cpu.read_byte(&addressing, true);
-    let (result, carry) = cpu.x.overflowing_sub(byte);
-    cpu.x = result;
+    let anded = cpu.x & cpu.a;
+    let result = anded.wrapping_sub(byte);
 
-    cpu.flags.set_negative_from_byte(cpu.x);
-    cpu.flags.set_zero_from_byte(cpu.x);
-    cpu.flags.set_carry(carry);
+    cpu.flags.set_negative_from_byte(result);
+    cpu.flags.set_zero_from_byte(result);
+    cpu.flags.set_carry(anded >= byte);
+
+    cpu.x = result;
 
     cycles
 }
