@@ -11,7 +11,7 @@ use std::io::prelude::*;
 use cpu::opcodes::bitwise::and::{aac, and, arr, asr, axs};
 use cpu::opcodes::bitwise::or::{eor, ora};
 use cpu::opcodes::bitwise::rotate::{rla, rol, ror};
-use cpu::opcodes::bitwise::shift::{asl, lsr, slo};
+use cpu::opcodes::bitwise::shift::{asl, lsr, slo, sre};
 use cpu::opcodes::bitwise::test::bit;
 use cpu::opcodes::branch::carry::{bcc, bcs};
 use cpu::opcodes::branch::negative::{bmi, bpl};
@@ -344,9 +344,11 @@ impl CPU {
 
             0x40 => rti(self),
             0x41 => eor(self, &Addressing::IndirectX),
+            0x43 => nop(self, 2, &Addressing::IndirectX),
             0x44 => nop(self, 1, &Addressing::ZeroPage),
             0x45 => eor(self, &Addressing::ZeroPage),
             0x46 => lsr(self, &Addressing::ZeroPage),
+            0x47 => sre(self, &Addressing::ZeroPage),
             0x48 => pha(self),
             0x49 => eor(self, &Addressing::Immediate),
             0x4A => lsr(self, &Addressing::Accumulator),
@@ -354,18 +356,23 @@ impl CPU {
             0x4C => jmp(self, &Addressing::Absolute),
             0x4D => eor(self, &Addressing::Absolute),
             0x4E => lsr(self, &Addressing::Absolute),
+            0x4F => sre(self, &Addressing::Absolute),
 
             0x50 => bvc(self),
             0x51 => eor(self, &Addressing::IndirectY),
+            0x53 => nop(self, 2, &Addressing::IndirectY),
             0x54 => nop(self, 1, &Addressing::ZeroPageX),
             0x55 => eor(self, &Addressing::ZeroPageX),
             0x56 => lsr(self, &Addressing::ZeroPageX),
+            0x57 => sre(self, &Addressing::ZeroPageX),
             0x58 => cli(self),
             0x59 => eor(self, &Addressing::AbsoluteY),
             0x5A => nop(self, 0, &Addressing::Immediate),
-            0x5C => nop(self, 2, &Addressing::AbsoluteX),
+            0x5B => sre(self, &Addressing::AbsoluteX),
+            0x5C => nop(self, 2, &Addressing::AbsoluteY),
             0x5D => eor(self, &Addressing::AbsoluteX),
             0x5E => lsr(self, &Addressing::AbsoluteX),
+            0x5F => sre(self, &Addressing::AbsoluteX),
 
             0x60 => rts(self),
             0x61 => adc(self, &Addressing::IndirectX),
