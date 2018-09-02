@@ -11,7 +11,7 @@ use std::io::prelude::*;
 use cpu::opcodes::bitwise::and::{aac, and, arr, asr, axs};
 use cpu::opcodes::bitwise::or::{eor, ora};
 use cpu::opcodes::bitwise::rotate::{rol, ror};
-use cpu::opcodes::bitwise::shift::{asl, lsr};
+use cpu::opcodes::bitwise::shift::{asl, lsr, slo};
 use cpu::opcodes::bitwise::test::bit;
 use cpu::opcodes::branch::carry::{bcc, bcs};
 use cpu::opcodes::branch::negative::{bmi, bpl};
@@ -280,9 +280,11 @@ impl CPU {
         let cycles = match byte {
             // 0x00 => BRK Implied
             0x01 => ora(self, &Addressing::IndirectX),
+            0x03 => slo(self, &Addressing::IndirectX),
             0x04 => nop(self, 1, &Addressing::ZeroPage),
             0x05 => ora(self, &Addressing::ZeroPage),
             0x06 => asl(self, &Addressing::ZeroPage),
+            0x07 => slo(self, &Addressing::ZeroPage),
             0x08 => php(self),
             0x09 => ora(self, &Addressing::Immediate),
             0x0A => asl(self, &Addressing::Accumulator),
@@ -290,18 +292,23 @@ impl CPU {
             0x0C => nop(self, 2, &Addressing::Absolute),
             0x0D => ora(self, &Addressing::Absolute),
             0x0E => asl(self, &Addressing::Absolute),
+            0x0F => slo(self, &Addressing::Absolute),
 
             0x10 => bpl(self),
             0x11 => ora(self, &Addressing::IndirectY),
+            0x13 => slo(self, &Addressing::IndirectY),
             0x14 => nop(self, 1, &Addressing::ZeroPageX),
             0x15 => ora(self, &Addressing::ZeroPageX),
             0x16 => asl(self, &Addressing::ZeroPageX),
+            0x17 => slo(self, &Addressing::ZeroPageX),
             0x18 => clc(self),
             0x19 => ora(self, &Addressing::AbsoluteY),
             0x1A => nop(self, 0, &Addressing::Immediate),
+            0x1B => slo(self, &Addressing::AbsoluteY),
             0x1C => nop(self, 2, &Addressing::AbsoluteX),
             0x1D => ora(self, &Addressing::AbsoluteX),
             0x1E => asl(self, &Addressing::AbsoluteX),
+            0x1F => slo(self, &Addressing::AbsoluteX),
 
             0x20 => jsr(self, &Addressing::Absolute),
             0x21 => and(self, &Addressing::IndirectX),
