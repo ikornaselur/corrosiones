@@ -104,11 +104,12 @@ pub fn slo(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     let byte = old_byte << 1;
     cpu.write_byte(&addressing, byte, true);
 
+    cpu.flags.set_carry(old_byte >> 7 == 1);
+
     cpu.a |= byte;
 
-    cpu.flags.set_carry(old_byte >> 7 == 1);
-    cpu.flags.set_zero_from_byte(byte);
-    cpu.flags.set_negative_from_byte(byte);
+    cpu.flags.set_zero_from_byte(cpu.a);
+    cpu.flags.set_negative_from_byte(cpu.a);
 
     cycles
 }
@@ -138,18 +139,19 @@ pub fn sre(cpu: &mut CPU, addressing: &Addressing) -> u8 {
         Addressing::AbsoluteX | Addressing::AbsoluteY => 7,
         Addressing::IndirectX | Addressing::IndirectY => 8,
         Addressing::ZeroPage => 5,
-        _ => panic!("SLO doesn't support {:?} addressing", addressing),
+        _ => panic!("SRE doesn't support {:?} addressing", addressing),
     };
 
     let old_byte = cpu.read_byte(&addressing, false);
     let byte = old_byte >> 1;
     cpu.write_byte(&addressing, byte, true);
 
+    cpu.flags.set_carry(old_byte & 1 == 1);
+
     cpu.a ^= byte;
 
-    cpu.flags.set_carry(old_byte >> 7 == 1);
-    cpu.flags.set_zero_from_byte(byte);
-    cpu.flags.set_negative_from_byte(byte);
+    cpu.flags.set_zero_from_byte(cpu.a);
+    cpu.flags.set_negative_from_byte(cpu.a);
 
     cycles
 }
