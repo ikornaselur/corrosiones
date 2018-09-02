@@ -140,33 +140,6 @@ pub fn arr(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     cycles
 }
 
-/// And memory with accumulator, then copy it to the X register
-///
-/// *Undocumented instruction*
-///
-/// # Supported addressing modes
-///
-/// * Immediate - 2 Cycles
-///
-/// # Flags affected
-///
-/// * Negative
-/// * Zero
-pub fn atx(cpu: &mut CPU, addressing: &Addressing) -> u8 {
-    let cycles = match addressing {
-        Addressing::Immediate => 2,
-        _ => panic!("ATX doesn't support {:?} addressing", addressing),
-    };
-
-    cpu.a &= cpu.read_byte(&addressing, true);
-    cpu.x = cpu.a;
-
-    cpu.flags.set_zero_from_byte(cpu.a);
-    cpu.flags.set_negative_from_byte(cpu.a);
-
-    cycles
-}
-
 /// And X register with accumulator, store the result in the X register and subtract the byte from
 /// memory from the X register (without borrow)
 ///
@@ -329,22 +302,6 @@ mod test {
         assert_eq!(cpu.a, 0b0100_0000);
         assert_eq!(cpu.flags.carry, true);
         assert_eq!(cpu.flags.overflow, true);
-    }
-
-    #[test]
-    fn atx_ands_memory_to_accumulator_then_copies_it_to_x() {
-        let mut cpu = CPU {
-            a: 0b1111_0000,
-            ..CPU::default()
-        };
-        cpu.memory
-            .load_ram(vec![0b1010_1010])
-            .expect("Failed to load ram");
-
-        atx(&mut cpu, &Addressing::Immediate);
-
-        assert_eq!(cpu.a, 0b1010_0000);
-        assert_eq!(cpu.x, 0b1010_0000);
     }
 
     #[test]

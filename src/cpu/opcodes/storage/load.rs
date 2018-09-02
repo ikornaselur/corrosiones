@@ -75,6 +75,7 @@ pub fn ldx(cpu: &mut CPU, addressing: &Addressing) -> u8 {
 ///
 /// * Absolute - 4 Cycles
 /// * Absolute Y - 4* Cycles
+/// * Immediate - 2 Cycles
 /// * Indirect X - 6 Cycles
 /// * Indirect Y - 5* Cycles
 /// * Zero Page - 3 Cycles
@@ -85,6 +86,7 @@ pub fn lax(cpu: &mut CPU, addressing: &Addressing) -> u8 {
         Addressing::IndirectX => 6,
         Addressing::IndirectY => 5,
         Addressing::ZeroPage => 3,
+        Addressing::Immediate => 2,
         _ => panic!("LAX doesn't support {:?} addressing", addressing),
     };
     let byte = cpu.read_byte(&addressing, true);
