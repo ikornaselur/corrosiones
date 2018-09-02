@@ -10,7 +10,7 @@ use std::io::prelude::*;
 
 use cpu::opcodes::bitwise::and::{aac, and, arr, asr, axs};
 use cpu::opcodes::bitwise::or::{eor, ora};
-use cpu::opcodes::bitwise::rotate::{rol, ror};
+use cpu::opcodes::bitwise::rotate::{rla, rol, ror};
 use cpu::opcodes::bitwise::shift::{asl, lsr, slo};
 use cpu::opcodes::bitwise::test::bit;
 use cpu::opcodes::branch::carry::{bcc, bcs};
@@ -312,9 +312,11 @@ impl CPU {
 
             0x20 => jsr(self, &Addressing::Absolute),
             0x21 => and(self, &Addressing::IndirectX),
+            0x23 => rla(self, &Addressing::IndirectX),
             0x24 => bit(self, &Addressing::ZeroPage),
             0x25 => and(self, &Addressing::ZeroPage),
             0x26 => rol(self, &Addressing::ZeroPage),
+            0x27 => rla(self, &Addressing::ZeroPage),
             0x28 => plp(self),
             0x29 => and(self, &Addressing::Immediate),
             0x2A => rol(self, &Addressing::Accumulator),
@@ -322,18 +324,23 @@ impl CPU {
             0x2C => bit(self, &Addressing::Absolute),
             0x2D => and(self, &Addressing::Absolute),
             0x2E => rol(self, &Addressing::Absolute),
+            0x2F => rla(self, &Addressing::Absolute),
 
             0x30 => bmi(self),
             0x31 => and(self, &Addressing::IndirectY),
+            0x33 => rla(self, &Addressing::IndirectY),
             0x34 => nop(self, 1, &Addressing::ZeroPageX),
             0x35 => and(self, &Addressing::ZeroPageX),
             0x36 => rol(self, &Addressing::ZeroPageX),
+            0x37 => rla(self, &Addressing::ZeroPageX),
             0x38 => sec(self),
             0x39 => and(self, &Addressing::AbsoluteY),
             0x3A => nop(self, 0, &Addressing::Immediate),
+            0x3B => rla(self, &Addressing::AbsoluteY),
             0x3C => nop(self, 2, &Addressing::AbsoluteX),
             0x3D => and(self, &Addressing::AbsoluteX),
             0x3E => rol(self, &Addressing::AbsoluteX),
+            0x3F => rla(self, &Addressing::AbsoluteX),
 
             0x40 => rti(self),
             0x41 => eor(self, &Addressing::IndirectX),
