@@ -72,7 +72,7 @@ pub fn dcp(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     cycles
 }
 
-/// Decrement X Index
+/// Decrement X register
 ///
 /// # Flags affected
 ///
@@ -88,7 +88,7 @@ pub fn dex(cpu: &mut CPU) -> u8 {
     2
 }
 
-/// Decrement Y Index
+/// Decrement Y register
 ///
 /// # Flags affected
 ///
@@ -139,7 +139,7 @@ mod test {
     }
 
     #[test]
-    fn dex_decrements_x_index() {
+    fn dex_decrements_x_register() {
         let mut cpu = CPU {
             x: 0xA1,
             ..CPU::default()
@@ -151,7 +151,7 @@ mod test {
     }
 
     #[test]
-    fn dex_decrements_x_index_wrapping() {
+    fn dex_decrements_x_register_wrapping() {
         let mut cpu = CPU {
             x: 0x00,
             ..CPU::default()
@@ -163,7 +163,7 @@ mod test {
     }
 
     #[test]
-    fn dey_decrements_x_index() {
+    fn dey_decrements_x_register() {
         let mut cpu = CPU {
             y: 0xA1,
             ..CPU::default()
@@ -175,7 +175,7 @@ mod test {
     }
 
     #[test]
-    fn dey_decrements_x_index_wrapping() {
+    fn dey_decrements_x_register_wrapping() {
         let mut cpu = CPU {
             y: 0x00,
             ..CPU::default()

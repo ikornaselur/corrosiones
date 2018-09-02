@@ -38,7 +38,7 @@ pub fn lda(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     cycles
 }
 
-/// Load X Index with memory
+/// Load X register with memory
 ///
 /// # Supported addressing modes
 ///
@@ -67,7 +67,7 @@ pub fn ldx(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     cycles
 }
 
-/// Load X Index and Accumulator with memory
+/// Load X register and Accumulator with memory
 ///
 /// *Undocumented instruction*
 ///
@@ -95,7 +95,7 @@ pub fn lax(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     cycles
 }
 
-/// Load Y Index with memory
+/// Load Y register with memory
 ///
 /// # Supported addressing modes
 ///
@@ -145,7 +145,7 @@ mod test {
     }
 
     #[test]
-    fn ldx_loads_x_index() {
+    fn ldx_loads_x_register() {
         let mut cpu = CPU {
             pc: 0x0002,
             ..CPU::default()
@@ -161,7 +161,7 @@ mod test {
     }
 
     #[test]
-    fn lax_loads_both_accumulator_and_x_index() {
+    fn lax_loads_both_accumulator_and_x_register() {
         let mut cpu = CPU {
             pc: 0x0002,
             ..CPU::default()
@@ -178,7 +178,7 @@ mod test {
     }
 
     #[test]
-    fn ldy_loads_y_index() {
+    fn ldy_loads_y_register() {
         let mut cpu = CPU {
             pc: 0x0002,
             ..CPU::default()

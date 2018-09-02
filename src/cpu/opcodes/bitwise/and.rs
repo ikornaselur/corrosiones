@@ -167,8 +167,8 @@ pub fn atx(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     cycles
 }
 
-/// And X index with accumulator, store the result in the X index and subtract the byte from memory
-/// from the X index (without borrow)
+/// And X register with accumulator, store the result in the X register and subtract the byte from
+/// memory from the X register (without borrow)
 ///
 /// *Undocumented instruction*
 ///
