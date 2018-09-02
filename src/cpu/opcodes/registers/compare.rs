@@ -30,15 +30,14 @@ pub fn cmp(cpu: &mut CPU, addressing: &Addressing) -> u8 {
         Addressing::IndirectX => 6,
         Addressing::IndirectY => 5,
         Addressing::ZeroPage => 3,
-        _ => panic!("cmp doesn't support {:?} addressing", addressing),
+        _ => panic!("CMP doesn't support {:?} addressing", addressing),
     };
 
     let byte = cpu.read_byte(&addressing, true);
 
-    let acc = cpu.a;
-    cpu.flags.set_carry(byte <= acc);
-    cpu.flags.set_zero(byte == acc);
-    cpu.flags.set_negative(byte > acc);
+    cpu.flags.set_carry(byte <= cpu.a);
+    cpu.flags.set_zero(byte == cpu.a);
+    cpu.flags.set_negative((cpu.a.wrapping_sub(byte) >> 7) > 0);
 
     cycles
 }
@@ -61,15 +60,14 @@ pub fn cpx(cpu: &mut CPU, addressing: &Addressing) -> u8 {
         Addressing::Absolute => 4,
         Addressing::Immediate => 2,
         Addressing::ZeroPage => 3,
-        _ => panic!("cpx doesn't support {:?} addressing", addressing),
+        _ => panic!("CPX doesn't support {:?} addressing", addressing),
     };
 
     let byte = cpu.read_byte(&addressing, true);
 
-    let x = cpu.x;
-    cpu.flags.set_carry(byte <= x);
-    cpu.flags.set_zero(byte == x);
-    cpu.flags.set_negative_from_byte(byte);
+    cpu.flags.set_carry(byte <= cpu.x);
+    cpu.flags.set_zero(byte == cpu.x);
+    cpu.flags.set_negative((cpu.x.wrapping_sub(byte) >> 7) > 0);
 
     cycles
 }
@@ -92,15 +90,14 @@ pub fn cpy(cpu: &mut CPU, addressing: &Addressing) -> u8 {
         Addressing::Absolute => 4,
         Addressing::Immediate => 2,
         Addressing::ZeroPage => 3,
-        _ => panic!("cpy doesn't support {:?} addressing", addressing),
+        _ => panic!("CPY doesn't support {:?} addressing", addressing),
     };
 
     let byte = cpu.read_byte(&addressing, true);
 
-    let y = cpu.y;
-    cpu.flags.set_carry(byte <= y);
-    cpu.flags.set_zero(byte == y);
-    cpu.flags.set_negative_from_byte(byte);
+    cpu.flags.set_carry(byte <= cpu.y);
+    cpu.flags.set_zero(byte == cpu.y);
+    cpu.flags.set_negative((cpu.y.wrapping_sub(byte) >> 7) > 0);
 
     cycles
 }
@@ -155,6 +152,28 @@ mod test {
     }
 
     #[test]
+    fn cmp_sets_negative_if_byte_is_higher_than_accumulator() {
+        let mut cpu = CPU {
+            a: 0x30,
+            pc: 0x0001,
+            ..CPU::default()
+        };
+
+        cpu.memory
+            .load_ram(vec![0xFF, 0x50, 0x30, 0x10])
+            .expect("Failed to load ram");
+
+        cmp(&mut cpu, &Addressing::Immediate);
+        assert_eq!(cpu.flags.negative, true); // A < M
+
+        cmp(&mut cpu, &Addressing::Immediate);
+        assert_eq!(cpu.flags.negative, false); // A == M
+
+        cmp(&mut cpu, &Addressing::Immediate);
+        assert_eq!(cpu.flags.negative, false); // A > M
+    }
+
+    #[test]
     fn cpx_sets_carry_if_a_higher_than_memory() {
         let mut cpu = CPU {
             x: 0x30,
@@ -200,21 +219,24 @@ mod test {
     }
 
     #[test]
-    fn cpx_sets_negative_if_memory_negative() {
+    fn cpx_sets_negative_if_memory_is_higher_than_x() {
         let mut cpu = CPU {
             x: 0x30,
             pc: 0x0001,
             ..CPU::default()
         };
         cpu.memory
-            .load_ram(vec![0xFF, 0b1000_0000, 0b0111_1111])
+            .load_ram(vec![0xFF, 0x50, 0x30, 0x10])
             .expect("Failed to load ram");
 
         cpx(&mut cpu, &Addressing::Immediate);
-        assert_eq!(cpu.flags.negative, true);
+        assert_eq!(cpu.flags.negative, true); // A < M
 
         cpx(&mut cpu, &Addressing::Immediate);
-        assert_eq!(cpu.flags.negative, false);
+        assert_eq!(cpu.flags.negative, false); // A == M
+
+        cpx(&mut cpu, &Addressing::Immediate);
+        assert_eq!(cpu.flags.negative, false); // A > M
     }
 
     #[test]
@@ -270,34 +292,16 @@ mod test {
             ..CPU::default()
         };
         cpu.memory
-            .load_ram(vec![0xFF, 0b1000_0000, 0b0111_1111])
+            .load_ram(vec![0xFF, 0x50, 0x30, 0x10])
             .expect("Failed to load ram");
 
         cpy(&mut cpu, &Addressing::Immediate);
-        assert_eq!(cpu.flags.negative, true);
+        assert_eq!(cpu.flags.negative, true); // A < M
 
         cpy(&mut cpu, &Addressing::Immediate);
-        assert_eq!(cpu.flags.negative, false);
-    }
+        assert_eq!(cpu.flags.negative, false); // A == M
 
-    #[test]
-    fn cmp_sets_negative_if_memory_is_bigger_than_accumulator() {
-        let mut cpu = CPU {
-            a: 0x05,
-            pc: 0x0001,
-            ..CPU::default()
-        };
-        cpu.memory
-            .load_ram(vec![0xFF, 0x04, 0x05, 0x06])
-            .expect("Failed to load ram");
-
-        cmp(&mut cpu, &Addressing::Immediate);
-        assert_eq!(cpu.flags.negative, false);
-
-        cmp(&mut cpu, &Addressing::Immediate);
-        assert_eq!(cpu.flags.negative, false);
-
-        cmp(&mut cpu, &Addressing::Immediate);
-        assert_eq!(cpu.flags.negative, true);
+        cpy(&mut cpu, &Addressing::Immediate);
+        assert_eq!(cpu.flags.negative, false); // A > M
     }
 }
