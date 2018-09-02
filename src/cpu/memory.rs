@@ -145,13 +145,14 @@ impl Memory {
     ///
     /// assert_eq!(memory.read(0x0001), 0xAB);
     /// ```
-    pub fn write(&mut self, addr: u16, byte: u8) {
+    pub(crate) fn write(&mut self, addr: u16, byte: u8) {
         let addr = usize::from(addr);
         // println!("Writing into 0x{:04X?}", addr);
         match addr {
             0x0000...0x1FFF => self.ram[addr % 0x0800] = byte,
             0x2000...0x3FFF => self.io[(addr - 0x2000) % 0x0008] = byte,
             0x4000...0x401F => self.io[addr - 0x4000 + 0x0008] = byte,
+            0x6000...0x7FFF => self.sram[addr - 0x6000] = byte,
             _ => panic!("Unable to write to 0x{:04X?}", addr),
         }
     }

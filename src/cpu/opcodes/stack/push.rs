@@ -15,7 +15,7 @@ pub fn php(cpu: &mut CPU) -> u8 {
     let cycles = 3;
 
     let flags = cpu.flags.as_byte();
-    cpu.push_stack(flags);
+    cpu.push_stack(flags | 0b0001_0000);
 
     cycles
 }
@@ -53,6 +53,6 @@ mod test {
 
         php(&mut cpu);
 
-        assert_eq!(cpu.raw_read_byte(0x01FF), cpu.flags.as_byte());
+        assert_eq!(cpu.raw_read_byte(0x01FF), cpu.flags.as_byte() | 0b0001_0000);
     }
 }
