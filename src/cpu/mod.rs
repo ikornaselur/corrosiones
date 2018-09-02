@@ -204,8 +204,12 @@ impl CPU {
         (u16::from(msb) << 8) | u16::from(lsb)
     }
 
-    pub fn offset_pc(&mut self, offset: u16) {
-        self.pc += offset;
+    pub fn offset_pc(&mut self, offset: u8) {
+        if offset & 0x80 == 0 {
+            self.pc += offset as u16;
+        } else {
+            self.pc -= (!offset + 1) as u16;
+        }
     }
 
     pub fn set_pc(&mut self, address: u16) {
@@ -581,5 +585,64 @@ mod test {
 
         assert_eq!(cpu.sp, 0x00);
         assert_eq!(result, 0xFF);
+    }
+
+    #[test]
+    fn offset_pc_by_max_negative() {
+        let mut cpu = CPU {
+            pc: 1000,
+            ..CPU::default()
+        };
+
+        cpu.offset_pc(0x80);
+
+        assert_eq!(cpu.pc, 1000 - 128);
+    }
+
+    #[test]
+    fn offset_pc_by_negative_one() {
+        let mut cpu = CPU {
+            pc: 1000,
+            ..CPU::default()
+        };
+
+        cpu.offset_pc(0xFF);
+
+        assert_eq!(cpu.pc, 1000 - 1);
+    }
+
+    #[test]
+    fn offset_pc_by_zero() {
+        let mut cpu = CPU {
+            pc: 1000,
+            ..CPU::default()
+        };
+
+        cpu.offset_pc(0x00);
+
+        assert_eq!(cpu.pc, 1000);
+    }
+
+    #[test]
+    fn offset_pc_by_positive_one() {
+        let mut cpu = CPU {
+            pc: 1000,
+            ..CPU::default()
+        };
+
+        cpu.offset_pc(0x01);
+
+        assert_eq!(cpu.pc, 1000 + 1);
+    }
+    #[test]
+    fn offset_pc_by_max_positive() {
+        let mut cpu = CPU {
+            pc: 1000,
+            ..CPU::default()
+        };
+
+        cpu.offset_pc(0x7F);
+
+        assert_eq!(cpu.pc, 1000 + 127);
     }
 }
