@@ -38,6 +38,36 @@ pub fn and(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     cycles
 }
 
+/// And memory with accumulator and set carry if negative
+///
+/// *Undocumented instruction*
+///
+/// # Supported addressing modes
+///
+/// * Immediate - 2 Cycles
+///
+/// # Flags affected
+///
+/// * Negative
+/// * Zero
+/// * Carry
+pub fn aac(cpu: &mut CPU, addressing: &Addressing) -> u8 {
+    let cycles = match addressing {
+        Addressing::Immediate => 2,
+        _ => panic!("ACC doesn't support {:?} addressin", addressing),
+    };
+
+    let byte = cpu.read_byte(&addressing, true);
+    let result = cpu.a & byte;
+
+    if result & (1 << 7) > 0 {
+        cpu.flags.set_carry(true);
+    }
+    cpu.flags.set_zero_from_byte(result);
+    cpu.flags.set_negative_from_byte(result);
+    cycles
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

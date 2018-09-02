@@ -8,7 +8,7 @@ use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 
-use cpu::opcodes::bitwise::and::and;
+use cpu::opcodes::bitwise::and::{aac, and};
 use cpu::opcodes::bitwise::or::{eor, ora};
 use cpu::opcodes::bitwise::rotate::{rol, ror};
 use cpu::opcodes::bitwise::shift::{asl, lsr};
@@ -286,6 +286,7 @@ impl CPU {
             0x08 => php(self),
             0x09 => ora(self, &Addressing::Immediate),
             0x0A => asl(self, &Addressing::Accumulator),
+            0x0B => aac(self, &Addressing::Immediate),
             0x0C => nop(self, 2, &Addressing::Absolute),
             0x0D => ora(self, &Addressing::Absolute),
             0x0E => asl(self, &Addressing::Absolute),
@@ -310,6 +311,7 @@ impl CPU {
             0x28 => plp(self),
             0x29 => and(self, &Addressing::Immediate),
             0x2A => rol(self, &Addressing::Accumulator),
+            0x2B => aac(self, &Addressing::Immediate),
             0x2C => bit(self, &Addressing::Absolute),
             0x2D => and(self, &Addressing::Absolute),
             0x2E => rol(self, &Addressing::Absolute),
@@ -469,6 +471,7 @@ impl CPU {
             0xE8 => inx(self),
             0xE9 => sbc(self, &Addressing::Immediate),
             0xEA => nop(self, 0, &Addressing::Immediate),
+            0xEB => sbc(self, &Addressing::Immediate),
             0xEC => cpx(self, &Addressing::Absolute),
             0xED => sbc(self, &Addressing::Absolute),
             0xEE => inc(self, &Addressing::Absolute),
