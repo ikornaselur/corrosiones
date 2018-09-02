@@ -46,3 +46,68 @@ fn implied() {
 fn immediate() {
     run_blargg_test("tests/instr_test_v5/03-immediate.nes");
 }
+
+#[test]
+fn zero_page() {
+    run_blargg_test("tests/instr_test_v5/04-zero_page.nes");
+}
+
+#[test]
+fn zp_xy() {
+    run_blargg_test("tests/instr_test_v5/05-zp_xy.nes");
+}
+
+#[test]
+fn absolute() {
+    run_blargg_test("tests/instr_test_v5/06-absolute.nes");
+}
+
+#[test]
+fn absolute_xy() {
+    run_blargg_test("tests/instr_test_v5/07-abs_xy.nes");
+}
+
+#[test]
+fn indirect_x() {
+    run_blargg_test("tests/instr_test_v5/08-ind_x.nes");
+}
+
+#[test]
+fn indirect_y() {
+    run_blargg_test("tests/instr_test_v5/09-ind_y.nes");
+}
+
+#[test]
+fn branches() {
+    run_blargg_test("tests/instr_test_v5/10-branches.nes");
+}
+
+#[test]
+fn stack() {
+    run_blargg_test("tests/instr_test_v5/11-stack.nes");
+}
+
+#[test]
+fn jump() {
+    run_blargg_test("tests/instr_test_v5/12-jmp_jsr.nes");
+}
+
+#[test]
+fn return_from_subroutine() {
+    run_blargg_test("tests/instr_test_v5/13-rts.nes");
+}
+
+#[test]
+fn return_from_interrupt() {
+    run_blargg_test("tests/instr_test_v5/14-rti.nes");
+}
+
+#[test]
+fn breaks() {
+    run_blargg_test("tests/instr_test_v5/15-brk.nes");
+}
+
+#[test]
+fn special() {
+    run_blargg_test("tests/instr_test_v5/16-special.nes");
+}
