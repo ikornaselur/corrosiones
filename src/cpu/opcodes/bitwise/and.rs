@@ -59,11 +59,11 @@ pub fn aac(cpu: &mut CPU, addressing: &Addressing) -> u8 {
 
     cpu.a &= cpu.read_byte(&addressing, true);
 
-    if cpu.a & (1 << 7) > 0 {
-        cpu.flags.set_carry(true);
-    }
     cpu.flags.set_zero_from_byte(cpu.a);
     cpu.flags.set_negative_from_byte(cpu.a);
+
+    let negative = cpu.flags.negative;
+    cpu.flags.set_carry(negative);
     cycles
 }
 
@@ -122,7 +122,12 @@ pub fn arr(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     };
 
     cpu.a &= cpu.read_byte(&addressing, true);
-    cpu.a = cpu.a >> 1;
+
+    cpu.a = if cpu.flags.carry {
+        cpu.a >> 1 | 1 << 7
+    } else {
+        cpu.a >> 1
+    };
 
     let bit5 = (cpu.a & (1 << 5)) > 0;
     let bit6 = (cpu.a & (1 << 6)) > 0;
