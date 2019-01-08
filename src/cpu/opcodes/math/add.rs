@@ -1,23 +1,5 @@
-use cpu::utils::get_overflow;
+use cpu::opcodes::utils::add_byte_to_accumulator;
 use cpu::{Addressing, CPU};
-
-pub(super) fn add_byte_to_accumulator(cpu: &mut CPU, original_byte: u8) {
-    let (byte, byte_carry) = if cpu.flags.carry {
-        original_byte.overflowing_add(1)
-    } else {
-        (original_byte, false)
-    };
-
-    let (result, carry) = cpu.a.overflowing_add(byte);
-
-    let overflow = get_overflow(original_byte, cpu.a, result);
-    cpu.flags.set_overflow(overflow);
-
-    cpu.a = result;
-    cpu.flags.set_carry(carry || byte_carry);
-    cpu.flags.set_zero_from_byte(cpu.a);
-    cpu.flags.set_negative_from_byte(cpu.a);
-}
 
 /// Add with carry
 ///

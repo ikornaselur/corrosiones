@@ -1,6 +1,6 @@
 use cpu::CPU;
 
-/// Transfer accumulator to X index
+/// Transfer accumulator to X register
 ///
 /// # Flags affected
 ///
@@ -13,7 +13,7 @@ pub fn tax(cpu: &mut CPU) -> u8 {
     2
 }
 
-/// Transfer X index to accumulator
+/// Transfer X register to accumulator
 ///
 /// # Flags affected
 ///
@@ -26,7 +26,7 @@ pub fn txa(cpu: &mut CPU) -> u8 {
     2
 }
 
-/// Transfer accumulator to Y index
+/// Transfer accumulator to Y register
 ///
 /// # Flags affected
 ///
@@ -39,7 +39,7 @@ pub fn tay(cpu: &mut CPU) -> u8 {
     2
 }
 
-/// Transfer Y index to accumulator
+/// Transfer Y register to accumulator
 ///
 /// # Flags affected
 ///
@@ -52,7 +52,7 @@ pub fn tya(cpu: &mut CPU) -> u8 {
     2
 }
 
-/// Transfer stack pointer to X index
+/// Transfer stack pointer to X register
 ///
 /// # Flags affected
 ///
@@ -65,7 +65,7 @@ pub fn tsx(cpu: &mut CPU) -> u8 {
     2
 }
 
-/// Transfer X index to stack pointer
+/// Transfer X register to stack pointer
 pub fn txs(cpu: &mut CPU) -> u8 {
     cpu.sp = cpu.x;
     2

@@ -34,7 +34,7 @@ pub fn sta(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     cycles
 }
 
-/// Store the X index in memory
+/// Store the X register in memory
 ///
 /// # Supported addressing modes
 ///
@@ -57,7 +57,7 @@ pub fn stx(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     cycles
 }
 
-/// Store the Y index in memory
+/// Store the Y register in memory
 ///
 /// # Supported addressing modes
 ///

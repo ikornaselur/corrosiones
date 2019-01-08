@@ -1,4 +1,4 @@
-use cpu::opcodes::math::add::add_byte_to_accumulator;
+use cpu::opcodes::utils::add_byte_to_accumulator;
 use cpu::{Addressing, CPU};
 
 /// Subtract with borrow

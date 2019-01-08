@@ -2,16 +2,15 @@ pub mod addressing;
 pub mod flags;
 pub mod memory;
 pub mod opcodes;
-pub mod utils;
 
 use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 
-use cpu::opcodes::bitwise::and::and;
+use cpu::opcodes::bitwise::and::{aac, and, arr, asr, axs};
 use cpu::opcodes::bitwise::or::{eor, ora};
-use cpu::opcodes::bitwise::rotate::{rol, ror};
-use cpu::opcodes::bitwise::shift::{asl, lsr};
+use cpu::opcodes::bitwise::rotate::{rla, rol, ror};
+use cpu::opcodes::bitwise::shift::{asl, lsr, slo, sre};
 use cpu::opcodes::bitwise::test::bit;
 use cpu::opcodes::branch::carry::{bcc, bcs};
 use cpu::opcodes::branch::negative::{bmi, bpl};
@@ -206,9 +205,9 @@ impl CPU {
 
     pub fn offset_pc(&mut self, offset: u8) {
         if offset & 0x80 == 0 {
-            self.pc += offset as u16;
+            self.pc += u16::from(offset);
         } else {
-            self.pc -= (!offset + 1) as u16;
+            self.pc -= u16::from(!offset + 1);
         }
     }
 
@@ -280,75 +279,99 @@ impl CPU {
         let cycles = match byte {
             // 0x00 => BRK Implied
             0x01 => ora(self, &Addressing::IndirectX),
+            0x03 => slo(self, &Addressing::IndirectX),
             0x04 => nop(self, 1, &Addressing::ZeroPage),
             0x05 => ora(self, &Addressing::ZeroPage),
             0x06 => asl(self, &Addressing::ZeroPage),
+            0x07 => slo(self, &Addressing::ZeroPage),
             0x08 => php(self),
             0x09 => ora(self, &Addressing::Immediate),
             0x0A => asl(self, &Addressing::Accumulator),
+            0x0B => aac(self, &Addressing::Immediate),
             0x0C => nop(self, 2, &Addressing::Absolute),
             0x0D => ora(self, &Addressing::Absolute),
             0x0E => asl(self, &Addressing::Absolute),
+            0x0F => slo(self, &Addressing::Absolute),
 
             0x10 => bpl(self),
             0x11 => ora(self, &Addressing::IndirectY),
+            0x13 => slo(self, &Addressing::IndirectY),
             0x14 => nop(self, 1, &Addressing::ZeroPageX),
             0x15 => ora(self, &Addressing::ZeroPageX),
             0x16 => asl(self, &Addressing::ZeroPageX),
+            0x17 => slo(self, &Addressing::ZeroPageX),
             0x18 => clc(self),
             0x19 => ora(self, &Addressing::AbsoluteY),
             0x1A => nop(self, 0, &Addressing::Immediate),
+            0x1B => slo(self, &Addressing::AbsoluteY),
             0x1C => nop(self, 2, &Addressing::AbsoluteX),
             0x1D => ora(self, &Addressing::AbsoluteX),
             0x1E => asl(self, &Addressing::AbsoluteX),
+            0x1F => slo(self, &Addressing::AbsoluteX),
 
             0x20 => jsr(self, &Addressing::Absolute),
             0x21 => and(self, &Addressing::IndirectX),
+            0x23 => rla(self, &Addressing::IndirectX),
             0x24 => bit(self, &Addressing::ZeroPage),
             0x25 => and(self, &Addressing::ZeroPage),
             0x26 => rol(self, &Addressing::ZeroPage),
+            0x27 => rla(self, &Addressing::ZeroPage),
             0x28 => plp(self),
             0x29 => and(self, &Addressing::Immediate),
             0x2A => rol(self, &Addressing::Accumulator),
+            0x2B => aac(self, &Addressing::Immediate),
             0x2C => bit(self, &Addressing::Absolute),
             0x2D => and(self, &Addressing::Absolute),
             0x2E => rol(self, &Addressing::Absolute),
+            0x2F => rla(self, &Addressing::Absolute),
 
             0x30 => bmi(self),
             0x31 => and(self, &Addressing::IndirectY),
+            0x33 => rla(self, &Addressing::IndirectY),
             0x34 => nop(self, 1, &Addressing::ZeroPageX),
             0x35 => and(self, &Addressing::ZeroPageX),
             0x36 => rol(self, &Addressing::ZeroPageX),
+            0x37 => rla(self, &Addressing::ZeroPageX),
             0x38 => sec(self),
             0x39 => and(self, &Addressing::AbsoluteY),
             0x3A => nop(self, 0, &Addressing::Immediate),
+            0x3B => rla(self, &Addressing::AbsoluteY),
             0x3C => nop(self, 2, &Addressing::AbsoluteX),
             0x3D => and(self, &Addressing::AbsoluteX),
             0x3E => rol(self, &Addressing::AbsoluteX),
+            0x3F => rla(self, &Addressing::AbsoluteX),
 
             0x40 => rti(self),
             0x41 => eor(self, &Addressing::IndirectX),
+            0x43 => nop(self, 2, &Addressing::IndirectX),
             0x44 => nop(self, 1, &Addressing::ZeroPage),
             0x45 => eor(self, &Addressing::ZeroPage),
             0x46 => lsr(self, &Addressing::ZeroPage),
+            0x47 => sre(self, &Addressing::ZeroPage),
             0x48 => pha(self),
             0x49 => eor(self, &Addressing::Immediate),
             0x4A => lsr(self, &Addressing::Accumulator),
+            0x4B => asr(self, &Addressing::Immediate),
             0x4C => jmp(self, &Addressing::Absolute),
             0x4D => eor(self, &Addressing::Absolute),
             0x4E => lsr(self, &Addressing::Absolute),
+            0x4F => sre(self, &Addressing::Absolute),
 
             0x50 => bvc(self),
             0x51 => eor(self, &Addressing::IndirectY),
+            0x53 => nop(self, 2, &Addressing::IndirectY),
             0x54 => nop(self, 1, &Addressing::ZeroPageX),
             0x55 => eor(self, &Addressing::ZeroPageX),
             0x56 => lsr(self, &Addressing::ZeroPageX),
+            0x57 => sre(self, &Addressing::ZeroPageX),
             0x58 => cli(self),
             0x59 => eor(self, &Addressing::AbsoluteY),
             0x5A => nop(self, 0, &Addressing::Immediate),
-            0x5C => nop(self, 2, &Addressing::AbsoluteX),
+            0x5B => sre(self, &Addressing::AbsoluteX),
+            0x5C => nop(self, 2, &Addressing::AbsoluteY),
             0x5D => eor(self, &Addressing::AbsoluteX),
             0x5E => lsr(self, &Addressing::AbsoluteX),
+            0x5F => sre(self, &Addressing::AbsoluteX),
 
             0x60 => rts(self),
             0x61 => adc(self, &Addressing::IndirectX),
@@ -358,6 +381,7 @@ impl CPU {
             0x68 => pla(self),
             0x69 => adc(self, &Addressing::Immediate),
             0x6A => ror(self, &Addressing::Accumulator),
+            0x6B => arr(self, &Addressing::Immediate),
             0x6C => jmp(self, &Addressing::Indirect),
             0x6D => adc(self, &Addressing::Absolute),
             0x6E => ror(self, &Addressing::Absolute),
@@ -408,6 +432,7 @@ impl CPU {
             0xA8 => tay(self),
             0xA9 => lda(self, &Addressing::Immediate),
             0xAA => tax(self),
+            0xAB => lax(self, &Addressing::Immediate),
             0xAC => ldy(self, &Addressing::Absolute),
             0xAD => lda(self, &Addressing::Absolute),
             0xAE => ldx(self, &Addressing::Absolute),
@@ -439,6 +464,7 @@ impl CPU {
             0xC8 => iny(self),
             0xC9 => cmp(self, &Addressing::Immediate),
             0xCA => dex(self),
+            0xCB => axs(self, &Addressing::Immediate),
             0xCC => cpy(self, &Addressing::Absolute),
             0xCD => cmp(self, &Addressing::Absolute),
             0xCE => dec(self, &Addressing::Absolute),
@@ -469,6 +495,7 @@ impl CPU {
             0xE8 => inx(self),
             0xE9 => sbc(self, &Addressing::Immediate),
             0xEA => nop(self, 0, &Addressing::Immediate),
+            0xEB => sbc(self, &Addressing::Immediate),
             0xEC => cpx(self, &Addressing::Absolute),
             0xED => sbc(self, &Addressing::Absolute),
             0xEE => inc(self, &Addressing::Absolute),

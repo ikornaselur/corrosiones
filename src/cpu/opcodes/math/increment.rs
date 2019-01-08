@@ -29,7 +29,7 @@ pub fn inc(cpu: &mut CPU, addressing: &Addressing) -> u8 {
     cycles
 }
 
-/// Increment X Index
+/// Increment X register
 ///
 /// # Flags affected
 ///
@@ -45,7 +45,7 @@ pub fn inx(cpu: &mut CPU) -> u8 {
     2
 }
 
-/// Increment Y Index
+/// Increment Y register
 ///
 /// # Flags affected
 ///
@@ -96,7 +96,7 @@ mod test {
     }
 
     #[test]
-    fn inx_increments_x_index() {
+    fn inx_increments_x_register() {
         let mut cpu = CPU {
             x: 0xA1,
             ..CPU::default()
@@ -108,7 +108,7 @@ mod test {
     }
 
     #[test]
-    fn inx_increments_x_index_wrapping() {
+    fn inx_increments_x_register_wrapping() {
         let mut cpu = CPU {
             x: 0xFF,
             ..CPU::default()
@@ -120,7 +120,7 @@ mod test {
     }
 
     #[test]
-    fn iny_increments_x_index() {
+    fn iny_increments_x_register() {
         let mut cpu = CPU {
             y: 0xA1,
             ..CPU::default()
@@ -132,7 +132,7 @@ mod test {
     }
 
     #[test]
-    fn iny_increments_x_index_wrapping() {
+    fn iny_increments_x_register_wrapping() {
         let mut cpu = CPU {
             y: 0xFF,
             ..CPU::default()
